@@ -47,6 +47,7 @@ const DomoForm = (props) => {
             <input id="_csrf" type="hidden" name="_csrf" value={props.csrf} />
             <input className="makeDomoSubmit" type="submit" value="Make Domo"/>
         </form>
+        
     );
 };
 
