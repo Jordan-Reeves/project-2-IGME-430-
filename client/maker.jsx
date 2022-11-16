@@ -1,103 +1,89 @@
 const helper = require('./helper.js');
 
-const handleDomo = (e) => {
+const uploadFile = async (e) => {
+    e.preventDefault();
+
+    // where and body
+    // sends file to the server
+    const response = await fetch('/upload', {
+        method: 'POST',
+        body: new FormData(e.target), // serializes the form, need to do to be able to send files
+    });
+
+    const text = await response.text();
+    document.getElementById('messages').innerText = text;
+};
+
+
+const handleDeleteImage = (e) => {
     e.preventDefault();
     helper.hideError();
 
-    const name = e.target.querySelector('#domoName').value;
-    const age = e.target.querySelector('#domoAge').value;
-    const color = e.target.querySelector('#domoColor').value;
+    const imgID = e.target.querySelector('#imgID').value;
     const _csrf = e.target.querySelector('#_csrf').value;
 
-    if(!name || !age || !color){
-        helper.handleError('All fields are required!');
-        return false;
-    }
-
-    helper.sendPost(e.target.action, {name, age, color, _csrf}, loadDomosFromServer);
+    helper.sendPost(e.target.action, {imgID, _csrf}, loadImagesFromServer);
     return false;
 }
 
-const handleDeleteDomo = (e) => {
-    e.preventDefault();
-    helper.hideError();
-
-    const domoID = e.target.querySelector('#domoID').value;
-    const _csrf = e.target.querySelector('#_csrf').value;
-
-    helper.sendPost(e.target.action, {domoID, _csrf}, loadDomosFromServer);
-    return false;
-}
-
-const DomoForm = (props) => {
+const MoodImageForm = (props) => {
     return (
-        <form id="domoForm"
-            name="domoForm"
-            onSubmit={handleDomo}
-            action="/maker"
-            method="POST"
-            className="domoForm"
-        >
-            <label htmlFor="name">Name: </label>
-            <input id="domoName" type="text" name="name" placeholder="Domo Name"/>
-            <label htmlFor="age">Age: </label>
-            <input id="domoAge" type="number" min="0" name="age"/>
-            <label htmlFor="color">Color: </label>
-            <input id="domoColor" type="text" name="color" placeholder="Domo Color"/>
-            <input id="_csrf" type="hidden" name="_csrf" value={props.csrf} />
-            <input className="makeDomoSubmit" type="submit" value="Make Domo"/>
-        </form>
-        
+        <form ref='uploadForm' 
+        id='uploadForm' 
+        action='/upload' 
+        onSubmit={uploadFile}
+        method='post' 
+        encType="multipart/form-data">
+          <input type="file" name="sampleFile" />
+          <input type='submit' value='Upload!' />
+      </form> 
     );
 };
 
-const DomoList = (props) => {
-    if(props.domos.length === 0){
+const MoodImageList = (props) => {
+    if(props.moodImages.length === 0){
         return (
-            <div className='domoList'>
-                <h3 className='emptyDomo'>No Domos Yet!</h3>
+            <div className='moodImageList'>
+                <h3 className='emptyList'>No Mood Images Yet!</h3>
             </div>
         );
     }
 
-    const domoNodes = props.domos.map(domo => {
+    const moodImagesNodes = props.moodImages.map(moodImage => {
         return (
-            <div key={domo._id} className="domo" id={domo._id}>
-                <img src="/assets/img/domoface.jpeg" alt="domo face" className='domoFace' />
-                <h3 className='domoName'>Name: {domo.name}</h3>
-                <h3 className='domoAge'>Age: {domo.age}</h3>
-                <h3 className='domoColor'>Color: {domo.color}</h3>
-                <form id="deleteDomo"
-                    name="deleteDomo"
-                    onSubmit={handleDeleteDomo}
-                    action="/deleteDomo"
+            <div key={moodImage._id} className="moodImage" id={moodImage._id}>
+                <h3>{moodImage.name}</h3>
+                <form id="deleteMoodImage"
+                    name="deleteMoodImage"
+                    onSubmit={handleDeleteImage}
+                    action="/deleteMoodImage"
                     method="POST"
-                    className="deleteDomo"
+                    className="deleteMoodImage"
                 >
                     <input id="_csrf" type="hidden" name="_csrf" value={props.csrf} />
-                    <input id="domoID" type="hidden" name="domoID" value={domo._id} />
-                    <input className="deleteDomoSubmit" type="submit" value="X"/>
+                    <input id="imgID" type="hidden" name="imgID" value={moodImage._id} />
+                    <input className="deleteMoodImageSubmit" type="submit" value="X"/>
                 </form>
             </div>
         );
     });
 
     return (
-        <div className='domoList'>
-            {domoNodes}
+        <div className='moodImagesList'>
+            {moodImagesNodes}
         </div>
     )
 }
 
-const loadDomosFromServer = async () => {
-    const response = await fetch('/getDomos');
+const loadImagesFromServer = async () => {
+    const response = await fetch('/getImages');
     const data = await response.json();
 
     const responseToken = await fetch('/getToken');
     const token = await responseToken.json();
     ReactDOM.render(
-        <DomoList csrf={token.csrfToken} domos={data.domos}/>, 
-        document.getElementById('domos')
+        <MoodImageList csrf={token.csrfToken} moodImages={data.moodImages}/>, 
+        document.getElementById('moodImages')
     );
 }
 
@@ -106,16 +92,16 @@ const init = async () => {
     const data = await response.json();
 
     ReactDOM.render(
-        <DomoForm csrf={data.csrfToken}/>, 
-        document.getElementById('makeDomo')
+        <MoodImageForm csrf={data.csrfToken}/>, 
+        document.getElementById('uploadForm')
     );
 
     ReactDOM.render(
-        <DomoList csrf={data.csrfToken} domos={[]}/>, 
-        document.getElementById('domos')
+        <MoodImageList csrf={data.csrfToken} moodImages={[]}/>, 
+        document.getElementById('moodImages')
     );
 
-    loadDomosFromServer();
+    loadImagesFromServer();
 }
 
 window.onload = init;
