@@ -11,9 +11,13 @@ const uploadFile = async (req, res) => {
   }
 
   const {sampleFile} = req.files;
+  sampleFile.owner=req.session.account._id;
+
   console.log(sampleFile);
 
+
   try {
+
     const newFile = new MoodImage(sampleFile);
     const doc = await newFile.save(); // should be same as new file for us to send to user
     return res.status(201).json({
@@ -29,6 +33,7 @@ const uploadFile = async (req, res) => {
 
 };
 
+// Get a specific image
 const retrieveFile = async (req, res) => {
   if (!req.query._id){
     return res.status(400).json({error: 'Missing file id'})
@@ -52,7 +57,7 @@ const retrieveFile = async (req, res) => {
   res.set({
     'Content-Type': doc.mimetype,
     'Content-Length': doc.size,
-    'Content-Disposition': `attachment; filename="${doc.name}"` // attachment means it will only download it not display it when you retrieve it
+    'Content-Disposition': `filename="${doc.name}"` // attachment means it will only download it not display it when you retrieve it
   });
 
   // send the response w the img data
@@ -60,21 +65,33 @@ const retrieveFile = async (req, res) => {
 
 };
 
+// Get all the images from an owner
 const getImages = (req, res) => {
-    // Domo.findByOwner(req.session.account._id, (err, docs) => {
-    //   if (err) {
-    //     console.log(err);
-    //     return res.status(400).json({ error: 'An error has occured!' });
-    //   }
-    //   return res.json({ domos: docs });
-    // });
-    console.log("testing");
-    return res.json({ moodImages: ['Testing', "still testing"] });
-  };
+    MoodImage.findByOwner(req.session.account._id, (err, docs) => {
+        if (err) {
+        console.log(err);
+        return res.status(400).json({ error: 'An error has occured!' });
+        }
+        return res.json({ moodImages: docs });
+    });
+    // console.log("testing");
+};
 
+const deleteMoodImage = (req, res) => {
+    MoodImage.deleteByID(req.body.imgID, (err) => {
+        if (err) {
+        console.log(err);
+        return res.status(400).json({ error: 'An error has occured!' });
+        }
+
+        return res.json({ message: 'Image has been deleted' });
+    });
+};
+  
 module.exports = {
   uploadPage,
   uploadFile,
   retrieveFile,
   getImages,
+  deleteMoodImage,
 }

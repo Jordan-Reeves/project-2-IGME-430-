@@ -3,15 +3,20 @@ const helper = require('./helper.js');
 const uploadFile = async (e) => {
     e.preventDefault();
 
+    console.log(e.target.querySelector('#_csrf').value);
     // where and body
     // sends file to the server
     const response = await fetch('/upload', {
         method: 'POST',
+        headers:{
+            'X-CSRF-TOKEN': e.target.querySelector('#_csrf').value,
+        },
         body: new FormData(e.target), // serializes the form, need to do to be able to send files
     });
 
+    loadImagesFromServer();
     const text = await response.text();
-    document.getElementById('messages').innerText = text;
+    // helper.handleError(text);
 };
 
 
@@ -65,6 +70,7 @@ const MoodImageList = (props) => {
                     <input id="imgID" type="hidden" name="imgID" value={moodImage._id} />
                     <input className="deleteMoodImageSubmit" type="submit" value="X"/>
                 </form>
+                <img src={`/retrieve?_id=${moodImage._id}`} style={{maxWidth:  500+'px'}}/>
             </div>
         );
     });

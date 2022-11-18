@@ -16,7 +16,10 @@ const router = (app) => {
   app.get('/upload', mid.requiresLogin, controllers.MoodImage.uploadPage);
   app.post('/upload', mid.requiresLogin, controllers.MoodImage.uploadFile);
 
-  // app.post('/deleteMoodImage', mid.requiresLogin, controllers.Domo.deleteDomo);
+  app.get('/retrieve', mid.requiresLogin, controllers.MoodImage.retrieveFile);
+
+
+  app.post('/deleteMoodImage', mid.requiresLogin, controllers.MoodImage.deleteMoodImage);
 
   app.get('/', mid.requiresSecure, mid.requiresLogout, controllers.Account.loginPage);
 };
