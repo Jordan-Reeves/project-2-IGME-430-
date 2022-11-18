@@ -17,7 +17,7 @@ const uploadFile = async (e) => {
 
 const handleDeleteImage = (e) => {
     e.preventDefault();
-    helper.hideError();
+    // helper.hideError();
 
     const imgID = e.target.querySelector('#imgID').value;
     const _csrf = e.target.querySelector('#_csrf').value;

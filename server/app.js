@@ -26,7 +26,7 @@ const redisClient = redis.createClient({
   legacyMode: true,
   url: config.connections.redis,
 });
-redisClient.connect().catch(console.error);
+// redisClient.connect().catch(console.error);
 
 const app = express();
 app.use(helmet({
@@ -39,32 +39,62 @@ app.use(compression());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-app.use(session({
-  key: 'sessionid',
-  store: new RedisStore({
-    client: redisClient,
-  }),
-  secret: config.secret,
-  resave: true,
-  saveUninitialized: true,
-}));
+// app.use(session({
+//   key: 'sessionid',
+//   store: new RedisStore({
+//     client: redisClient,
+//   }),
+//   secret: config.secret,
+//   resave: true,
+//   saveUninitialized: true,
+// }));
 
 app.engine('handlebars', expressHandlebars.engine({ defaultLayout: '' }));
 app.set('view engine', 'handlebars');
 app.set('views', `${__dirname}/../views`);
 app.use(cookieParser());
 
-app.use(csrf());
-app.use((err, req, res, next) => {
-  if (err.code !== 'EBADCSRFTOKEN') return next(err);
+// app.use(csrf());
+// app.use((err, req, res, next) => {
+//   if (err.code !== 'EBADCSRFTOKEN') return next(err);
 
-  console.log('Missing CSRF token!');
-  return false;
-});
+//   console.log('Missing CSRF token!');
+//   return false;
+// });
 
 router(app);
 
-app.listen(config.connections.http.port, (err) => {
-  if (err) { throw err; }
-  console.log(`Listening on port ${config.connections.http.port}`);
-});
+redisClient.connect().then(() => {
+  app.use(session({
+    key: 'sessionid',
+    store: new RedisStore({
+      client: redisClient,
+    }),
+    secret: config.secret,
+    resave: true,
+    saveUninitialized: true,
+    cookie: {
+      httpOnly: true,
+    },
+  }));
+
+  app.use(csrf());
+  app.use((err, req, res, next) => {
+    if (err.code !== 'EBADCSRFTOKEN') return next(err);
+
+    console.log('Missing CSRF token!');
+    return false;
+  });
+
+  router(app);
+
+  app.listen(config.connections.http.port, (err) => {
+    if (err) { throw err; }
+    console.log(`Listening on port ${config.connections.http.port}`);
+  });
+}).catch(console.error);
+
+// app.listen(config.connections.http.port, (err) => {
+//   if (err) { throw err; }
+//   console.log(`Listening on port ${config.connections.http.port}`);
+// });
