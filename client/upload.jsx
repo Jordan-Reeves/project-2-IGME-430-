@@ -17,7 +17,7 @@ const uploadFile = async (e) => {
 
 const handleDeleteImage = (e) => {
     e.preventDefault();
-    // helper.hideError();
+    helper.hideError();
 
     const imgID = e.target.querySelector('#imgID').value;
     const _csrf = e.target.querySelector('#_csrf').value;
@@ -28,13 +28,14 @@ const handleDeleteImage = (e) => {
 
 const MoodImageForm = (props) => {
     return (
-        <form ref='uploadForm' 
+        <form
         id='uploadForm' 
         action='/upload' 
         onSubmit={uploadFile}
         method='post' 
         encType="multipart/form-data">
           <input type="file" name="sampleFile" />
+          <input id="_csrf" type="hidden" name="_csrf" value={props.csrf} />
           <input type='submit' value='Upload!' />
       </form> 
     );

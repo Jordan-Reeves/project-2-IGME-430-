@@ -11,7 +11,7 @@ const uploadFile = async (req, res) => {
   }
 
   const {sampleFile} = req.files;
-  // console.log(sampleFile);
+  console.log(sampleFile);
 
   try {
     const newFile = new MoodImage(sampleFile);
@@ -59,6 +59,7 @@ const retrieveFile = async (req, res) => {
   return res.send(doc.data);
 
 };
+
 const getImages = (req, res) => {
     // Domo.findByOwner(req.session.account._id, (err, docs) => {
     //   if (err) {
