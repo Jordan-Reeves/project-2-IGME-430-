@@ -11,8 +11,8 @@ const session = require('express-session');
 const RedisStore = require('connect-redis')(session);
 const redis = require('redis');
 const csrf = require('csurf');
-const router = require('./router.js');
 const fileupload = require('express-fileupload');
+const router = require('./router.js');
 const config = require('./config.js');
 
 const setup = async () => {
@@ -22,13 +22,13 @@ const setup = async () => {
       throw err;
     }
   });
-  
+
   const redisClient = redis.createClient({
     legacyMode: true,
     url: config.connections.redis,
   });
   await redisClient.connect().catch(console.error);
-  
+
   const app = express();
   app.use(helmet({
     crossOriginEmbedderPolicy: false,
@@ -40,7 +40,7 @@ const setup = async () => {
   app.use(fileupload());
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());
-  
+
   app.use(session({
     key: 'sessionid',
     store: new RedisStore({
@@ -50,21 +50,21 @@ const setup = async () => {
     resave: true,
     saveUninitialized: true,
   }));
-  
+
   app.engine('handlebars', expressHandlebars.engine({ defaultLayout: '' }));
   app.set('view engine', 'handlebars');
   app.set('views', `${__dirname}/../views`);
   app.use(cookieParser());
-  
+
   app.use(csrf());
   app.use((err, req, res, next) => {
     if (err.code !== 'EBADCSRFTOKEN') return next(err);
     console.log('Missing CSRF token!');
     return false;
   });
-  
+
   router(app);
-  
+
   app.listen(config.connections.http.port, (err) => {
     if (err) { throw err; }
     console.log(`Listening on port ${config.connections.http.port}`);

@@ -18,7 +18,6 @@ const router = (app) => {
 
   app.get('/retrieve', mid.requiresLogin, controllers.MoodImage.retrieveFile);
 
-
   app.post('/deleteMoodImage', mid.requiresLogin, controllers.MoodImage.deleteMoodImage);
 
   app.get('/', mid.requiresSecure, mid.requiresLogout, controllers.Account.loginPage);

@@ -3,20 +3,25 @@ const helper = require('./helper.js');
 const uploadFile = async (e) => {
     e.preventDefault();
 
-    console.log(e.target.querySelector('#_csrf').value);
+    console.log(e.target.querySelector('#board').value);
     // where and body
     // sends file to the server
+    // let formData = new FormData(e.target);
+    // formData.append('boardtest', e.target.querySelector('#board').value);
+    // console.log(formData);
     const response = await fetch('/upload', {
         method: 'POST',
         headers:{
             'X-CSRF-TOKEN': e.target.querySelector('#_csrf').value,
         },
         body: new FormData(e.target), // serializes the form, need to do to be able to send files
+        // body: formData, // serializes the form, need to do to be able to send files
     });
 
     loadImagesFromServer();
+    // console.log(await response);
     const text = await response.text();
-    // helper.handleError(text);
+    helper.handleError(text);
 };
 
 
@@ -39,7 +44,13 @@ const MoodImageForm = (props) => {
         onSubmit={uploadFile}
         method='post' 
         encType="multipart/form-data">
+          <label for="sampleFile">Choose an image:</label>
           <input type="file" name="sampleFile" />
+          <label for="board">Choose a board:</label>
+          <select id="board" name="board">
+            <option value="Board 1">Board 1</option>
+            <option value="Board 2">Board 2</option>
+          </select>
           <input id="_csrf" type="hidden" name="_csrf" value={props.csrf} />
           <input type='submit' value='Upload!' />
       </form> 
