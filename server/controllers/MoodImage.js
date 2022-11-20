@@ -12,9 +12,9 @@ const uploadFile = async (req, res) => {
 
   const { sampleFile } = req.files;
   sampleFile.owner = req.session.account._id;
-  sampleFile.board = req.board;
-  console.log(req.board);
-  console.log(sampleFile);
+  // sampleFile.board = req.board;
+  // console.log(req.board);
+  // console.log(sampleFile);
 
   if (sampleFile.mimetype === 'image/png' || sampleFile.mimetype === 'image/jpeg') {
     try {
