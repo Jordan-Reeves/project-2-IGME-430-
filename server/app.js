@@ -26,6 +26,9 @@ const setup = async () => {
   const redisClient = redis.createClient({
     legacyMode: true,
     url: config.connections.redis,
+    socket: {
+      family: 4,
+    }
   });
   await redisClient.connect().catch(console.error);
 

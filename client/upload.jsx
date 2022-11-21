@@ -3,13 +3,10 @@ const helper = require('./helper.js');
 const uploadFile = async (e) => {
     e.preventDefault();
 
-    console.log(e.target.querySelector('#board').value);
-    // where and body
+    const boardVal = e.target.querySelector('#board').value;
     // sends file to the server
-    // let formData = new FormData(e.target);
-    // formData.append('boardtest', e.target.querySelector('#board').value);
-    // console.log(formData);
-    const response = await fetch('/upload', {
+    console.log(boardVal);
+    const response = await fetch(`/upload?board=${boardVal}`, {
         method: 'POST',
         headers:{
             'X-CSRF-TOKEN': e.target.querySelector('#_csrf').value,
@@ -23,7 +20,6 @@ const uploadFile = async (e) => {
     const text = await response.text();
     helper.handleError(text);
 };
-
 
 const handleDeleteImage = (e) => {
     e.preventDefault();
@@ -92,6 +88,43 @@ const MoodImageList = (props) => {
         </div>
     )
 }
+
+const WhichBoard = (props) => {
+    if(props.status == "create"){
+        return (
+            <form
+            id='uploadForm' 
+            action='/upload' 
+            onSubmit={uploadFile}
+            method='post' 
+            encType="multipart/form-data">
+            <label for="newBoard">Creat a board:</label>
+            <input type="text" name="newBoard" />
+            <input id="_csrf" type="hidden" name="_csrf" value={props.csrf} />
+            <input type='submit' value='Upload!' />
+        </form> 
+        );
+    } else { // choose existing
+        return (
+            <form
+            id='uploadForm' 
+            action='/upload' 
+            onSubmit={uploadFile}
+            method='post' 
+            encType="multipart/form-data">
+            <label for="sampleFile">Choose an image:</label>
+            <input type="file" name="sampleFile" />
+            <label for="board">Choose a board:</label>
+            <select id="board" name="board">
+                <option value="Board 1">Board 1</option>
+                <option value="Board 2">Board 2</option>
+            </select>
+            <input id="_csrf" type="hidden" name="_csrf" value={props.csrf} />
+            <input type='submit' value='Upload!' />
+        </form> 
+        );
+    }
+};
 
 const loadImagesFromServer = async () => {
     const response = await fetch('/getImages');

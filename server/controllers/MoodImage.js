@@ -12,9 +12,7 @@ const uploadFile = async (req, res) => {
 
   const { sampleFile } = req.files;
   sampleFile.owner = req.session.account._id;
-  // sampleFile.board = req.board;
-  // console.log(req.board);
-  // console.log(sampleFile);
+  sampleFile.board = req.query.board;
 
   if (sampleFile.mimetype === 'image/png' || sampleFile.mimetype === 'image/jpeg') {
     try {
@@ -80,6 +78,7 @@ const getImages = (req, res) => {
   // console.log("testing");
 };
 
+// Delete a Mood Image
 const deleteMoodImage = (req, res) => {
   MoodImage.deleteByID(req.body.imgID, (err) => {
     if (err) {
