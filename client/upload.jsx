@@ -1,4 +1,8 @@
 const helper = require('./helper.js');
+const { useState, useEffect } = React;
+
+
+let selectOptions = ["Test", "Create New"];
 
 const uploadFile = async (e) => {
     e.preventDefault();
@@ -6,6 +10,10 @@ const uploadFile = async (e) => {
     const boardVal = e.target.querySelector('#board').value;
     // sends file to the server
     console.log(boardVal);
+    // not found = -1 aka it was in create
+    if(selectOptions.findIndex() == -1){
+        selectOptions.unshift(boardVal);
+    } 
     const response = await fetch(`/upload?board=${boardVal}`, {
         method: 'POST',
         headers:{
@@ -16,6 +24,10 @@ const uploadFile = async (e) => {
     });
 
     loadImagesFromServer();
+    // ReactDOM.render(
+    //     <MoodImageForm csrf={data.csrfToken} boardSelect="select"/>, 
+    //     document.getElementById('uploadForm')
+    // );
     // console.log(await response);
     const text = await response.text();
     helper.handleError(text);
@@ -42,11 +54,12 @@ const MoodImageForm = (props) => {
         encType="multipart/form-data">
           <label for="sampleFile">Choose an image:</label>
           <input type="file" name="sampleFile" />
-          <label for="board">Choose a board:</label>
+          {/* <label for="board">Choose a board:</label>
           <select id="board" name="board">
             <option value="Board 1">Board 1</option>
             <option value="Board 2">Board 2</option>
-          </select>
+          </select> */}
+          <WhichBoard boardSelect={props.boardSelect}/>
           <input id="_csrf" type="hidden" name="_csrf" value={props.csrf} />
           <input type='submit' value='Upload!' />
       </form> 
@@ -90,38 +103,30 @@ const MoodImageList = (props) => {
 }
 
 const WhichBoard = (props) => {
-    if(props.status == "create"){
+    const [boardSelect, setBoardSelect] = useState(props.boardSelect);
+    console.log(boardSelect);
+
+    console.log(selectOptions);
+
+    if(boardSelect == "create"){
         return (
-            <form
-            id='uploadForm' 
-            action='/upload' 
-            onSubmit={uploadFile}
-            method='post' 
-            encType="multipart/form-data">
-            <label for="newBoard">Creat a board:</label>
-            <input type="text" name="newBoard" />
-            <input id="_csrf" type="hidden" name="_csrf" value={props.csrf} />
-            <input type='submit' value='Upload!' />
-        </form> 
+            <>
+                <label for="board">Create a new board:</label>
+                <input id="board" type="text" name="board" />
+            </> 
         );
-    } else { // choose existing
+    } else { // choose existing/select
         return (
-            <form
-            id='uploadForm' 
-            action='/upload' 
-            onSubmit={uploadFile}
-            method='post' 
-            encType="multipart/form-data">
-            <label for="sampleFile">Choose an image:</label>
-            <input type="file" name="sampleFile" />
-            <label for="board">Choose a board:</label>
-            <select id="board" name="board">
-                <option value="Board 1">Board 1</option>
-                <option value="Board 2">Board 2</option>
-            </select>
-            <input id="_csrf" type="hidden" name="_csrf" value={props.csrf} />
-            <input type='submit' value='Upload!' />
-        </form> 
+            <>
+                <label for="board">Choose a board:</label>
+                <select id="board" name="board" onChange={renderForm}>
+                    {selectOptions.map(option => {
+                        return(
+                            <option value={option}>{option}</option>
+                        )
+                    })}
+                </select>
+            </>
         );
     }
 };
@@ -138,12 +143,24 @@ const loadImagesFromServer = async () => {
     );
 }
 
+const renderForm = async () => {
+    const response = await fetch('/getToken');
+    const data = await response.json();
+
+    console.log("re-rendered");
+    ReactDOM.render(
+        <MoodImageForm csrf={data.csrfToken} boardSelect="create"/>, 
+        document.getElementById('uploadForm')
+    );
+
+}
+
 const init = async () => {
     const response = await fetch('/getToken');
     const data = await response.json();
 
     ReactDOM.render(
-        <MoodImageForm csrf={data.csrfToken}/>, 
+        <MoodImageForm csrf={data.csrfToken} boardSelect="select"/>, 
         document.getElementById('uploadForm')
     );
 
