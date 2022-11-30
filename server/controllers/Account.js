@@ -58,6 +58,32 @@ const signup = async (req, res) => {
   }
 };
 
+// Get all the boards
+const getBoards = (req, res) => {
+  Account.getBoards((err, docs) => {
+    if (err) {
+      console.log(err);
+      return res.status(400).json({ error: 'An error has occured!' });
+    }
+    return res.json({ userBoards: docs });
+  });
+};
+
+// Get all the boards
+const addBoard = (req, res) => {
+  const _id = req.session.account._id;
+  const newBoard = req.body.newBoard;
+
+  Account.addBoard(_id, newBoard, (err, docs) => {
+    if (err) {
+      console.log(err);
+      return res.status(400).json({ error: 'An error has occured!' });
+    }
+    return res.json({ userBoards: docs });
+  });
+};
+
+
 const getToken = (req, res) => res.json({ csrfToken: req.csrfToken() });
 
 module.exports = {
@@ -65,5 +91,7 @@ module.exports = {
   login,
   logout,
   signup,
+  getBoards,
+  addBoard,
   getToken,
 };

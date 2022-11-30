@@ -17,6 +17,9 @@ const router = (app) => {
   app.post('/upload', mid.requiresLogin, controllers.MoodImage.uploadFile);
 
   app.get('/retrieve', mid.requiresLogin, controllers.MoodImage.retrieveFile);
+  
+  app.get('/getBoards', mid.requiresLogin, controllers.Account.getBoards);
+  app.post('/addBoard', mid.requiresLogin, controllers.Account.addBoard);
 
   app.post('/deleteMoodImage', mid.requiresLogin, controllers.MoodImage.deleteMoodImage);
 

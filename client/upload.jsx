@@ -2,32 +2,30 @@ const helper = require('./helper.js');
 const { useState, createContext, useContext } = React;
 const UserContext = createContext()
 
-let selectOptions = ["Test", "Create New"];
+let selectOptions = [];
 
 const uploadFile = async (e) => {
     e.preventDefault();
 
     const boardVal = e.target.querySelector('#board').value;
-    // sends file to the server
     console.log(boardVal);
-    // not found = -1 aka it was in create
+
+    // add value to the list of boards
     if(!selectOptions.includes(boardVal)){
-        selectOptions.unshift(boardVal);
+        // selectOptions.unshift(boardVal);
+        handleAddBoard(boardVal, e.target.querySelector('#_csrf').value);
+
     } 
+    // sends file to the server
     const response = await fetch(`/upload?board=${boardVal}`, {
         method: 'POST',
         headers:{
             'X-CSRF-TOKEN': e.target.querySelector('#_csrf').value,
         },
         body: new FormData(e.target), // serializes the form, need to do to be able to send files
-        // body: formData, // serializes the form, need to do to be able to send files
     });
 
     loadImagesFromServer();
-    // ReactDOM.render(
-    //     <MoodImageForm csrf={e.target.querySelector('#_csrf').value} boardSelect="select"/>, 
-    //     document.getElementById('uploadForm')
-    // );-
     // console.log(await response);
     const text = await response.text();
     helper.handleError(text);
@@ -44,15 +42,26 @@ const handleDeleteImage = (e) => {
     return false;
 }
 
+const handleAddBoard = (newBoard, _csrf) => {
+    helper.hideError();
+
+    // const newBoard = e.target.querySelector('#board').value;
+    // const _csrf = e.target.querySelector('#_csrf').value;
+
+    helper.sendPost('/addBoard', {newBoard, _csrf}, loadBoardsFromServer);
+    return false;
+}
+
 const MoodImageForm = (props) => {
     const [boardSelect, setBoardSelect] = useState(props.boardSelect);
-    const value = { boardSelect, setBoardSelect };
+    const [storedSelectOptions, setStoredSelectOptions] = useState(props.selectOptions);
+    const value = { boardSelect, setBoardSelect, storedSelectOptions, setStoredSelectOptions};
 
     return (
         <form
         id='uploadForm' 
         action='/upload' 
-        onSubmit={() => {uploadFile(); setBoardSelect("select");}}
+        onSubmit={(e) => {uploadFile(e); setBoardSelect("select"); setStoredSelectOptions(selectOptions) }}
         method='post' 
         encType="multipart/form-data">
           <label for="sampleFile">Choose an image:</label>
@@ -109,13 +118,13 @@ const MoodImageList = (props) => {
 }
 
 const WhichBoard = (props) => {
-    // const [boardSelect, setBoardSelect] = useState(props.boardSelect);
+    // const [selectOptions, setBoardSelect] = useState(props.boardSelect);
     // console.log(boardSelect);
     // console.log(props.boardSelect);
 
     // console.log(selectOptions);
 
-    const {boardSelect, setBoardSelect }= useContext(UserContext);
+    const {boardSelect, setBoardSelect, storedSelectOptions, setStoredSelectOptions } = useContext(UserContext);
 
 
     if(boardSelect == "Create New"){
@@ -130,9 +139,9 @@ const WhichBoard = (props) => {
             <>
                 <label for="board">Choose a board:</label>
                 <select id="board" name="board" onChange={(e) => {setBoardSelect(e.target.value)}}>
-                    {selectOptions.map(option => {
+                    {storedSelectOptions.map(option => {
                         return(
-                            <option value={option}>{option}</option>
+                            <option key={option} value={option}>{option}</option>
                         )
                     })}
                 </select>
@@ -153,6 +162,15 @@ const loadImagesFromServer = async () => {
     );
 }
 
+const loadBoardsFromServer = async () => {
+    const response = await fetch('/getBoards');
+    const data = await response.json();
+
+    selectOptions = data.userBoards[0].boards;
+    console.log(selectOptions);
+
+}
+
 // const renderForm = async () => {
 //     const response = await fetch('/getToken');
 //     const data = await response.json();
@@ -169,8 +187,21 @@ const init = async () => {
     const response = await fetch('/getToken');
     const data = await response.json();
 
+    // const response = await fetch('/getToken');
+    // const data = await response.json();
+
+    // loadBoardsFromServer();
+    // console.log(selectOptions);
+
+    const boards = await fetch('/getBoards');
+    const boardData = await boards.json();
+
+    selectOptions = boardData.userBoards[0].boards;
+    console.log(selectOptions);
+
+
     ReactDOM.render(
-        <MoodImageForm csrf={data.csrfToken} boardSelect="select"/>, 
+        <MoodImageForm csrf={data.csrfToken} boardSelect="select" selectOptions={selectOptions}/>, 
         document.getElementById('uploadForm')
     );
 

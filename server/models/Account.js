@@ -33,6 +33,10 @@ const AccountSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  boards: {
+    type: [String],
+    default: ["Board 1", "Create New"],
+  },
   createdDate: {
     type: Date,
     default: Date.now,
@@ -70,6 +74,18 @@ AccountSchema.statics.authenticate = async (username, password, callback) => {
   } catch (err) {
     return callback(err);
   }
+};
+
+AccountSchema.statics.getBoards = (callback) => {
+  return AccountModel.find( { }, { boards: 1, username:1}).exec(callback);
+};
+
+AccountSchema.statics.addBoard = (owner, newBoard, callback) => {
+  return  AccountModel.updateOne(
+    { _id: owner },
+    { $push: { boards: newBoard } }
+ ).exec(callback)
+  // return AccountModel.updateOne( { username: username, :1}).exec(callback);
 };
 
 AccountModel = mongoose.model('Account', AccountSchema);
