@@ -61,15 +61,17 @@ const handleAddBoard = (newBoard, _csrf) => {
     return false;
 }
 
-// Function for adding a new board
-const handleDeleteBoard = (oldBoard, _csrf) => {
-    helper.hideError();
+// // Function for adding a new board
+// const handleDeleteBoard = (oldBoard, _csrf) => {
+//     helper.hideError();
 
-    helper.sendPost('/deleteBoard', {oldBoard, _csrf}, loadBoardsFromServer);
-    return false;
-}
+//     helper.sendPost('/deleteBoard', {oldBoard, _csrf}, loadBoardsFromServer);
+//     return false;
+// }
 
 // Component to for the form to upload an image and change boards
+
+
 const MoodImageForm = (props) => {
     const [boardSelect, setBoardSelect] = useState(props.boardSelect);
     const [storedSelectOptions, setStoredSelectOptions] = useState(props.selectOptions);
