@@ -61,17 +61,9 @@ const handleAddBoard = (newBoard, _csrf) => {
     return false;
 }
 
-// // Function for adding a new board
-// const handleDeleteBoard = (oldBoard, _csrf) => {
-//     helper.hideError();
 
-//     helper.sendPost('/deleteBoard', {oldBoard, _csrf}, loadBoardsFromServer);
-//     return false;
-// }
 
 // Component to for the form to upload an image and change boards
-
-
 const MoodImageForm = (props) => {
     const [boardSelect, setBoardSelect] = useState(props.boardSelect);
     const [storedSelectOptions, setStoredSelectOptions] = useState(props.selectOptions);
@@ -204,7 +196,6 @@ const init = async () => {
     const boardData = await boards.json();
 
     selectOptions = boardData.userBoards[0].boards;
-    console.log(selectOptions);
 
     // Render the form
     ReactDOM.render(
@@ -223,3 +214,12 @@ const init = async () => {
 }
 
 window.onload = init;
+
+
+// // Function for adding a new board
+// const handleDeleteBoard = (oldBoard, _csrf) => {
+//     helper.hideError();
+
+//     helper.sendPost('/deleteBoard', {oldBoard, _csrf}, loadBoardsFromServer);
+//     return false;
+// }

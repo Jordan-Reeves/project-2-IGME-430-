@@ -62,6 +62,65 @@ const signup = async (req, res) => {
   }
 };
 
+// Function to let users update their password
+const changePassword = async (req, res) => {
+  const username = `${req.body.username}`;
+  const pass = `${req.body.pass}`;
+  const pass2 = `${req.body.pass2}`;
+
+  return Account.authenticate(username, pass, (err, account) => {
+    if (err || !account) {
+      return res.status(401).json({ error: 'Wrong username or password!' });
+    }
+
+    req.session.account = Account.toAPI(account);
+
+    return res.json({ redirect: '/upload' });
+  });
+
+  if (!username || !pass || !pass2) {
+    return res.status(400).json({ error: 'All fields are required!' });
+  }
+
+  if (pass !== pass2) {
+    return res.status(400).json({ error: 'Passwords do not match!' });
+  }
+
+  try {
+    const hash = await Account.generateHash(pass);
+    const newAccount = new Account({ username, password: hash });
+    await newAccount.save();
+    req.session.account = Account.toAPI(newAccount);
+    return res.json({ redirect: '/upload' });
+  } catch (err) {
+    console.log(err);
+    if (err.code === 11000) {
+      return res.status(400).json({ error: 'Username already in use.' });
+    }
+    return res.status(400).json({ error: 'An error occured' });
+  }
+};
+
+// Function to check users password before allowing them to change it
+const checkPassword = (req, res) => {
+  const username = Account.getUsername(req.session.account);
+  const pass = `${req.body.pass}`;
+
+  if (!pass) {
+    return res.status(400).json({ error: 'Password is required!' });
+  }
+
+  return Account.authenticate(username, pass, (err, account) => {
+    if (err || !account) {
+      return res.status(401).json({ error: 'Wrong password!' });
+    }
+
+    req.session.account = Account.toAPI(account);
+
+    return res.json({ canChange: "true" });
+  });
+};
+
 // Function to all of a users boards back
 const getBoards = (req, res) => {
   Account.getBoards((err, docs) => {
@@ -87,6 +146,7 @@ const addBoard = (req, res) => {
   });
 };
 
+
 // Function to allow users to delete a new board
 // const deleteBoard = (req, res) => {
 //   const _id = req.session.account._id;
@@ -109,6 +169,8 @@ module.exports = {
   login,
   logout,
   signup,
+  changePassword,
+  checkPassword,
   getBoards,
   addBoard,
   getToken,
