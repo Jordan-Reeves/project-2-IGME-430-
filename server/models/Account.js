@@ -83,8 +83,15 @@ AccountSchema.statics.getBoards = (callback) => {
 AccountSchema.statics.addBoard = (owner, newBoard, callback) => {
   return  AccountModel.updateOne(
     { _id: owner },
-    { $push: { boards: newBoard } }
+    // { $push: { boards: newBoard } }
+    { $push: {
+      boards: {
+         $each: [newBoard],
+         $position: 0
+      }
+   }}
  ).exec(callback)
+
   // return AccountModel.updateOne( { username: username, :1}).exec(callback);
 };
 

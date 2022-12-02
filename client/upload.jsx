@@ -4,15 +4,14 @@ const UserContext = createContext()
 
 let selectOptions = [];
 
-const uploadFile = async (e) => {
+const uploadFile = async (e, callback) => {
     e.preventDefault();
 
     const boardVal = e.target.querySelector('#board').value;
-    console.log(boardVal);
+    // console.log(boardVal);
 
     // add value to the list of boards
     if(!selectOptions.includes(boardVal)){
-        // selectOptions.unshift(boardVal);
         handleAddBoard(boardVal, e.target.querySelector('#_csrf').value);
 
     } 
@@ -26,9 +25,18 @@ const uploadFile = async (e) => {
     });
 
     loadImagesFromServer();
+    const boards = await fetch('/getBoards');
+    const boardData = await boards.json();
+
+    selectOptions = boardData.userBoards[0].boards;
+    // console.log(selectOptions);
+
     // console.log(await response);
     const text = await response.text();
     helper.handleError(text);
+
+    
+    callback();
 };
 
 const handleDeleteImage = (e) => {
@@ -45,9 +53,6 @@ const handleDeleteImage = (e) => {
 const handleAddBoard = (newBoard, _csrf) => {
     helper.hideError();
 
-    // const newBoard = e.target.querySelector('#board').value;
-    // const _csrf = e.target.querySelector('#_csrf').value;
-
     helper.sendPost('/addBoard', {newBoard, _csrf}, loadBoardsFromServer);
     return false;
 }
@@ -61,16 +66,11 @@ const MoodImageForm = (props) => {
         <form
         id='uploadForm' 
         action='/upload' 
-        onSubmit={(e) => {uploadFile(e); setBoardSelect("select"); setStoredSelectOptions(selectOptions) }}
+        onSubmit={(e) => {uploadFile(e, () => { setBoardSelect("select"); setStoredSelectOptions(selectOptions)}); }}
         method='post' 
         encType="multipart/form-data">
           <label for="sampleFile">Choose an image:</label>
           <input type="file" name="sampleFile" />
-          {/* <label for="board">Choose a board:</label>
-          <select id="board" name="board">
-            <option value="Board 1">Board 1</option>
-            <option value="Board 2">Board 2</option>
-          </select> */}
           <UserContext.Provider value={value}>
             <WhichBoard boardSelect={value}/>
           </UserContext.Provider>
@@ -118,12 +118,6 @@ const MoodImageList = (props) => {
 }
 
 const WhichBoard = (props) => {
-    // const [selectOptions, setBoardSelect] = useState(props.boardSelect);
-    // console.log(boardSelect);
-    // console.log(props.boardSelect);
-
-    // console.log(selectOptions);
-
     const {boardSelect, setBoardSelect, storedSelectOptions, setStoredSelectOptions } = useContext(UserContext);
 
 
@@ -186,12 +180,6 @@ const loadBoardsFromServer = async () => {
 const init = async () => {
     const response = await fetch('/getToken');
     const data = await response.json();
-
-    // const response = await fetch('/getToken');
-    // const data = await response.json();
-
-    // loadBoardsFromServer();
-    // console.log(selectOptions);
 
     const boards = await fetch('/getBoards');
     const boardData = await boards.json();
