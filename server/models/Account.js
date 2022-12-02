@@ -76,14 +76,20 @@ AccountSchema.statics.authenticate = async (username, password, callback) => {
   }
 };
 
+// Function to return all of a users boards
 AccountSchema.statics.getBoards = (callback) => {
-  return AccountModel.find( { }, { boards: 1, username:1}).exec(callback);
+  return AccountModel.find( { }, { boards: 1}).exec(callback);
 };
 
+// Function to return all of a users username
+AccountSchema.statics.getUsername = (callback) => {
+  return AccountModel.find( { }, {username:1}).exec(callback);
+};
+
+// Function to add a board to the front of a users array
 AccountSchema.statics.addBoard = (owner, newBoard, callback) => {
   return  AccountModel.updateOne(
     { _id: owner },
-    // { $push: { boards: newBoard } }
     { $push: {
       boards: {
          $each: [newBoard],
@@ -91,8 +97,6 @@ AccountSchema.statics.addBoard = (owner, newBoard, callback) => {
       }
    }}
  ).exec(callback)
-
-  // return AccountModel.updateOne( { username: username, :1}).exec(callback);
 };
 
 AccountModel = mongoose.model('Account', AccountSchema);

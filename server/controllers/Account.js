@@ -2,15 +2,18 @@ const models = require('../models');
 
 const { Account } = models;
 
+// Function to send users to the login page
 const loginPage = (req, res) => {
   res.render('login', { csrfToken: req.csrfToken() });
 };
 
+// Function to logout users and send them to the login page
 const logout = (req, res) => {
   req.session.destroy();
   return res.redirect('/');
 };
 
+// Function to let users login - validation
 const login = (req, res) => {
   const username = `${req.body.username}`;
   const pass = `${req.body.pass}`;
@@ -30,6 +33,7 @@ const login = (req, res) => {
   });
 };
 
+// Function to let users create an account
 const signup = async (req, res) => {
   const username = `${req.body.username}`;
   const pass = `${req.body.pass}`;
@@ -58,7 +62,7 @@ const signup = async (req, res) => {
   }
 };
 
-// Get all the boards
+// Function to all of a users boards back
 const getBoards = (req, res) => {
   Account.getBoards((err, docs) => {
     if (err) {
@@ -69,7 +73,7 @@ const getBoards = (req, res) => {
   });
 };
 
-// Get all the boards
+// Function to allow users to create a new board
 const addBoard = (req, res) => {
   const _id = req.session.account._id;
   const newBoard = req.body.newBoard;
@@ -83,7 +87,7 @@ const addBoard = (req, res) => {
   });
 };
 
-
+// Function to return the users csrf
 const getToken = (req, res) => res.json({ csrfToken: req.csrfToken() });
 
 module.exports = {

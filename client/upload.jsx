@@ -2,8 +2,11 @@ const helper = require('./helper.js');
 const { useState, createContext, useContext } = React;
 const UserContext = createContext()
 
+// Array to store the different boards a user has
+// Then used to dynamically create the select options for WhichBoard
 let selectOptions = [];
 
+// Function for uploading a file
 const uploadFile = async (e, callback) => {
     e.preventDefault();
 
@@ -39,6 +42,7 @@ const uploadFile = async (e, callback) => {
     callback();
 };
 
+// Function for deleting a mood image
 const handleDeleteImage = (e) => {
     e.preventDefault();
     helper.hideError();
@@ -50,6 +54,7 @@ const handleDeleteImage = (e) => {
     return false;
 }
 
+// Function for adding a new board
 const handleAddBoard = (newBoard, _csrf) => {
     helper.hideError();
 
@@ -57,6 +62,7 @@ const handleAddBoard = (newBoard, _csrf) => {
     return false;
 }
 
+// Component to for the form to upload an image and change boards
 const MoodImageForm = (props) => {
     const [boardSelect, setBoardSelect] = useState(props.boardSelect);
     const [storedSelectOptions, setStoredSelectOptions] = useState(props.selectOptions);
@@ -81,7 +87,7 @@ const MoodImageForm = (props) => {
     );
 };
 
-
+// Component for each individual image card
 const MoodImageCard = (props) => {
     return (
         <div key={props._id} className="moodImage" id={props._id}>
@@ -101,6 +107,8 @@ const MoodImageCard = (props) => {
             </div>
     )
 }
+
+// Component for the list of mood images
 const MoodImageList = (props) => {
     if(props.moodImages.length === 0){
         return (
@@ -113,21 +121,6 @@ const MoodImageList = (props) => {
     const moodImagesNodes = props.moodImages.map(moodImage => {
         return (
             <MoodImageCard key={moodImage._id} _id={moodImage._id} csrf={props.csrf} name={moodImage.name}/>
-            // <div key={moodImage._id} className="moodImage" id={moodImage._id}>
-            //     <h3>{moodImage.name}</h3>
-            //     <form id="deleteMoodImage"
-            //         name="deleteMoodImage"
-            //         onSubmit={handleDeleteImage}
-            //         action="/deleteMoodImage"
-            //         method="POST"
-            //         className="deleteMoodImage"
-            //     >
-            //         <input id="_csrf" type="hidden" name="_csrf" value={props.csrf} />
-            //         <input id="imgID" type="hidden" name="imgID" value={moodImage._id} />
-            //         <input className="deleteMoodImageSubmit" type="submit" value="X"/>
-            //     </form>
-            //     <img src={`/retrieve?_id=${moodImage._id}`} style={{maxWidth:  500+'px'}}/>
-            // </div>
         );
     });
 
@@ -138,6 +131,7 @@ const MoodImageList = (props) => {
     )
 }
 
+// Component to swich the form from input/create select/existing board
 const WhichBoard = (props) => {
     const {boardSelect, setBoardSelect, storedSelectOptions, setStoredSelectOptions } = useContext(UserContext);
 
@@ -165,9 +159,9 @@ const WhichBoard = (props) => {
     }
 };
 
+// Load images from the server but only for a specific board
 const loadImagesFromServer = async (boardVal) => {
-    // const response = await fetch('/getImages');
-    const response = await fetch(`/getImages?board=${boardVal}`);
+    const response = await fetch(`/getImages?board=${boardVal ? boardVal : "Board 1"}`);
     const data = await response.json();
 
     const responseToken = await fetch('/getToken');
@@ -178,6 +172,7 @@ const loadImagesFromServer = async (boardVal) => {
     );
 }
 
+// Load the array of a users boards
 const loadBoardsFromServer = async () => {
     const response = await fetch('/getBoards');
     const data = await response.json();
@@ -187,40 +182,32 @@ const loadBoardsFromServer = async () => {
 
 }
 
-// const renderForm = async () => {
-//     const response = await fetch('/getToken');
-//     const data = await response.json();
-
-//     console.log("re-rendered");
-//     ReactDOM.render(
-//         <MoodImageForm csrf={data.csrfToken} boardSelect="create"/>, 
-//         document.getElementById('uploadForm')
-//     );
-
-// }
-
+// Gets the csrf token, loads the boards, renders the form, renders the images
 const init = async () => {
     const response = await fetch('/getToken');
     const data = await response.json();
 
+    // load the arrary of users boards
     const boards = await fetch('/getBoards');
     const boardData = await boards.json();
 
     selectOptions = boardData.userBoards[0].boards;
     console.log(selectOptions);
 
-
+    // Render the form
     ReactDOM.render(
         <MoodImageForm csrf={data.csrfToken} boardSelect="select" selectOptions={selectOptions}/>, 
         document.getElementById('uploadForm')
     );
 
+    // Render the component for the array of images
     ReactDOM.render(
         <MoodImageList csrf={data.csrfToken} moodImages={[]}/>, 
         document.getElementById('moodImages')
     );
 
-    loadImagesFromServer();
+    // Load images
+    loadImagesFromServer(selectOptions[0]);
 }
 
 window.onload = init;

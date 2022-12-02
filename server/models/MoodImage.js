@@ -30,6 +30,7 @@ const MoodImageSchema = new mongoose.Schema({
   },
 });
 
+// Function to return all of a users images based on the owner id and board
 MoodImageSchema.statics.findByOwner = (ownerId, boardVal, callback) => {
   const search = {
     // convert the string ownerId to an object id
@@ -40,6 +41,7 @@ MoodImageSchema.statics.findByOwner = (ownerId, boardVal, callback) => {
   return MoodImageModel.find(search).select('name data size mimetype board').lean().exec(callback);
 };
 
+// Function to delete an image using its image id
 MoodImageSchema.statics.deleteByID = (imgID, callback) => {
   const search = {
     // convert the string ownerId to an object id
