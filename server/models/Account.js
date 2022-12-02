@@ -35,7 +35,7 @@ const AccountSchema = new mongoose.Schema({
   },
   boards: {
     type: [String],
-    default: ["Board 1", "Create New"],
+    default: ['Board 1', 'Create New'],
   },
   createdDate: {
     type: Date,
@@ -78,26 +78,40 @@ AccountSchema.statics.authenticate = async (username, password, callback) => {
 
 // Function to return all of a users boards
 AccountSchema.statics.getBoards = (callback) => {
-  return AccountModel.find( { }, { boards: 1}).exec(callback);
+  AccountModel.find({ }, { boards: 1 }).exec(callback);
 };
 
 // Function to return all of a users username
 AccountSchema.statics.getUsername = (callback) => {
-  return AccountModel.find( { }, {username:1}).exec(callback);
+  AccountModel.find({ }, { username: 1 }).exec(callback);
 };
 
 // Function to add a board to the front of a users array
 AccountSchema.statics.addBoard = (owner, newBoard, callback) => {
-  return  AccountModel.updateOne(
+  AccountModel.updateOne(
     { _id: owner },
-    { $push: {
-      boards: {
-         $each: [newBoard],
-         $position: 0
-      }
-   }}
- ).exec(callback)
+    {
+      $push: {
+        boards: {
+          $each: [newBoard],
+          $position: 0,
+        },
+      },
+    },
+  ).exec(callback);
 };
+
+// I realized deleting would be more complicated because
+// I would need to delete all the images with that board value
+// // Function to delete a board from the users array
+// AccountSchema.statics.deleteBoard = (owner, oldBoard, callback) => {
+//   return  AccountModel.updateOne(
+//     { _id: owner },
+//     { $pull: {
+//       boards: oldBoard
+//    }}
+//  ).exec(callback)
+// };
 
 AccountModel = mongoose.model('Account', AccountSchema);
 module.exports = AccountModel;

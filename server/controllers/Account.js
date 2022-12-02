@@ -75,8 +75,8 @@ const getBoards = (req, res) => {
 
 // Function to allow users to create a new board
 const addBoard = (req, res) => {
-  const _id = req.session.account._id;
-  const newBoard = req.body.newBoard;
+  const { _id } = req.session.account;
+  const { newBoard } = req.body;
 
   Account.addBoard(_id, newBoard, (err, docs) => {
     if (err) {
@@ -86,6 +86,20 @@ const addBoard = (req, res) => {
     return res.json({ userBoards: docs });
   });
 };
+
+// Function to allow users to delete a new board
+// const deleteBoard = (req, res) => {
+//   const _id = req.session.account._id;
+//   const newBoard = req.body.newBoard;
+
+//   Account.deleteBoard(_id, newBoard, (err, docs) => {
+//     if (err) {
+//       console.log(err);
+//       return res.status(400).json({ error: 'An error has occured!' });
+//     }
+//     return res.json({ userBoards: docs });
+//   });
+// };
 
 // Function to return the users csrf
 const getToken = (req, res) => res.json({ csrfToken: req.csrfToken() });

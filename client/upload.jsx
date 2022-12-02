@@ -38,7 +38,6 @@ const uploadFile = async (e, callback) => {
     const text = await response.text();
     helper.handleError(text);
 
-    
     callback();
 };
 
@@ -62,6 +61,14 @@ const handleAddBoard = (newBoard, _csrf) => {
     return false;
 }
 
+// Function for adding a new board
+const handleDeleteBoard = (oldBoard, _csrf) => {
+    helper.hideError();
+
+    helper.sendPost('/deleteBoard', {oldBoard, _csrf}, loadBoardsFromServer);
+    return false;
+}
+
 // Component to for the form to upload an image and change boards
 const MoodImageForm = (props) => {
     const [boardSelect, setBoardSelect] = useState(props.boardSelect);
@@ -80,11 +87,40 @@ const MoodImageForm = (props) => {
           <UserContext.Provider value={value}>
             <WhichBoard boardSelect={value}/>
           </UserContext.Provider>
-
           <input id="_csrf" type="hidden" name="_csrf" value={props.csrf} />
           <input type='submit' value='Upload!' />
       </form> 
     );
+};
+
+// Component to swich the form from input/create select/existing board
+const WhichBoard = (props) => {
+    const {boardSelect, setBoardSelect, storedSelectOptions, setStoredSelectOptions } = useContext(UserContext);
+
+
+    if(boardSelect == "Create New"){
+        return (
+            <>
+                <label htmlFor="board">Create a new board:</label>
+                <input id="board" type="text" name="board" />
+                <input type='submit' value='delete board'/>
+
+            </> 
+        );
+    } else { // choose existing/select
+        return (
+            <>
+                <label htmlFor="board">Choose a board:</label>
+                <select id="board" name="board" onChange={(e) => {setBoardSelect(e.target.value); loadImagesFromServer(e.target.value);}}>
+                    {storedSelectOptions.map(option => {
+                        return(
+                            <option key={option} value={option}>{option}</option>
+                        )
+                    })}
+                </select>
+            </>
+        );
+    }
 };
 
 // Component for each individual image card
@@ -131,33 +167,7 @@ const MoodImageList = (props) => {
     )
 }
 
-// Component to swich the form from input/create select/existing board
-const WhichBoard = (props) => {
-    const {boardSelect, setBoardSelect, storedSelectOptions, setStoredSelectOptions } = useContext(UserContext);
 
-
-    if(boardSelect == "Create New"){
-        return (
-            <>
-                <label htmlFor="board">Create a new board:</label>
-                <input id="board" type="text" name="board" />
-            </> 
-        );
-    } else { // choose existing/select
-        return (
-            <>
-                <label htmlFor="board">Choose a board:</label>
-                <select id="board" name="board" onChange={(e) => {setBoardSelect(e.target.value); loadImagesFromServer(e.target.value);}}>
-                    {storedSelectOptions.map(option => {
-                        return(
-                            <option key={option} value={option}>{option}</option>
-                        )
-                    })}
-                </select>
-            </>
-        );
-    }
-};
 
 // Load images from the server but only for a specific board
 const loadImagesFromServer = async (boardVal) => {

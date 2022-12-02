@@ -28,7 +28,7 @@ const setup = async () => {
     url: config.connections.redis,
     socket: {
       family: 4,
-    }
+    },
   });
   await redisClient.connect().catch(console.error);
 

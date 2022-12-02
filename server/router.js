@@ -20,6 +20,7 @@ const router = (app) => {
 
   app.get('/getBoards', mid.requiresLogin, controllers.Account.getBoards);
   app.post('/addBoard', mid.requiresLogin, controllers.Account.addBoard);
+  // app.post('/deleteBoard', mid.requiresLogin, controllers.Account.deleteBoard);
 
   app.post('/deleteMoodImage', mid.requiresLogin, controllers.MoodImage.deleteMoodImage);
 
