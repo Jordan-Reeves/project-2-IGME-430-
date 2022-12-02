@@ -68,7 +68,8 @@ const retrieveFile = async (req, res) => {
 
 // Get all the images from an owner
 const getImages = (req, res) => {
-  MoodImage.findByOwner(req.session.account._id, (err, docs) => {
+
+  MoodImage.findByOwner(req.session.account._id, req.query.board, (err, docs) => {
     if (err) {
       console.log(err);
       return res.status(400).json({ error: 'An error has occured!' });

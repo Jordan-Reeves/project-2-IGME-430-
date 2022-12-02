@@ -30,10 +30,11 @@ const MoodImageSchema = new mongoose.Schema({
   },
 });
 
-MoodImageSchema.statics.findByOwner = (ownerId, callback) => {
+MoodImageSchema.statics.findByOwner = (ownerId, boardVal, callback) => {
   const search = {
     // convert the string ownerId to an object id
     owner: mongoose.Types.ObjectId(ownerId),
+    board: boardVal,
   };
 
   return MoodImageModel.find(search).select('name data size mimetype board').lean().exec(callback);

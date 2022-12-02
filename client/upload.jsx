@@ -24,7 +24,7 @@ const uploadFile = async (e, callback) => {
         body: new FormData(e.target), // serializes the form, need to do to be able to send files
     });
 
-    loadImagesFromServer();
+    loadImagesFromServer(boardVal);
     const boards = await fetch('/getBoards');
     const boardData = await boards.json();
 
@@ -66,10 +66,10 @@ const MoodImageForm = (props) => {
         <form
         id='uploadForm' 
         action='/upload' 
-        onSubmit={(e) => {uploadFile(e, () => { setBoardSelect("select"); setStoredSelectOptions(selectOptions)}); }}
+        onSubmit={(e) => {uploadFile(e, () => {  setStoredSelectOptions(selectOptions); setBoardSelect("select");}); }}
         method='post' 
         encType="multipart/form-data">
-          <label for="sampleFile">Choose an image:</label>
+          <label htmlFor="sampleFile">Choose an image:</label>
           <input type="file" name="sampleFile" />
           <UserContext.Provider value={value}>
             <WhichBoard boardSelect={value}/>
@@ -81,6 +81,26 @@ const MoodImageForm = (props) => {
     );
 };
 
+
+const MoodImageCard = (props) => {
+    return (
+        <div key={props._id} className="moodImage" id={props._id}>
+                <h3>{props.name}</h3>
+                <form id="deleteMoodImage"
+                    name="deleteMoodImage"
+                    onSubmit={handleDeleteImage}
+                    action="/deleteMoodImage"
+                    method="POST"
+                    className="deleteMoodImage"
+                >
+                    <input id="_csrf" type="hidden" name="_csrf" value={props.csrf} />
+                    <input id="imgID" type="hidden" name="imgID" value={props._id} />
+                    <input className="deleteMoodImageSubmit" type="submit" value="X"/>
+                </form>
+                <img src={`/retrieve?_id=${props._id}`} style={{maxWidth:  500+'px'}}/>
+            </div>
+    )
+}
 const MoodImageList = (props) => {
     if(props.moodImages.length === 0){
         return (
@@ -92,21 +112,22 @@ const MoodImageList = (props) => {
 
     const moodImagesNodes = props.moodImages.map(moodImage => {
         return (
-            <div key={moodImage._id} className="moodImage" id={moodImage._id}>
-                <h3>{moodImage.name}</h3>
-                <form id="deleteMoodImage"
-                    name="deleteMoodImage"
-                    onSubmit={handleDeleteImage}
-                    action="/deleteMoodImage"
-                    method="POST"
-                    className="deleteMoodImage"
-                >
-                    <input id="_csrf" type="hidden" name="_csrf" value={props.csrf} />
-                    <input id="imgID" type="hidden" name="imgID" value={moodImage._id} />
-                    <input className="deleteMoodImageSubmit" type="submit" value="X"/>
-                </form>
-                <img src={`/retrieve?_id=${moodImage._id}`} style={{maxWidth:  500+'px'}}/>
-            </div>
+            <MoodImageCard key={moodImage._id} _id={moodImage._id} csrf={props.csrf} name={moodImage.name}/>
+            // <div key={moodImage._id} className="moodImage" id={moodImage._id}>
+            //     <h3>{moodImage.name}</h3>
+            //     <form id="deleteMoodImage"
+            //         name="deleteMoodImage"
+            //         onSubmit={handleDeleteImage}
+            //         action="/deleteMoodImage"
+            //         method="POST"
+            //         className="deleteMoodImage"
+            //     >
+            //         <input id="_csrf" type="hidden" name="_csrf" value={props.csrf} />
+            //         <input id="imgID" type="hidden" name="imgID" value={moodImage._id} />
+            //         <input className="deleteMoodImageSubmit" type="submit" value="X"/>
+            //     </form>
+            //     <img src={`/retrieve?_id=${moodImage._id}`} style={{maxWidth:  500+'px'}}/>
+            // </div>
         );
     });
 
@@ -124,15 +145,15 @@ const WhichBoard = (props) => {
     if(boardSelect == "Create New"){
         return (
             <>
-                <label for="board">Create a new board:</label>
+                <label htmlFor="board">Create a new board:</label>
                 <input id="board" type="text" name="board" />
             </> 
         );
     } else { // choose existing/select
         return (
             <>
-                <label for="board">Choose a board:</label>
-                <select id="board" name="board" onChange={(e) => {setBoardSelect(e.target.value)}}>
+                <label htmlFor="board">Choose a board:</label>
+                <select id="board" name="board" onChange={(e) => {setBoardSelect(e.target.value); loadImagesFromServer(e.target.value);}}>
                     {storedSelectOptions.map(option => {
                         return(
                             <option key={option} value={option}>{option}</option>
@@ -144,8 +165,9 @@ const WhichBoard = (props) => {
     }
 };
 
-const loadImagesFromServer = async () => {
-    const response = await fetch('/getImages');
+const loadImagesFromServer = async (boardVal) => {
+    // const response = await fetch('/getImages');
+    const response = await fetch(`/getImages?board=${boardVal}`);
     const data = await response.json();
 
     const responseToken = await fetch('/getToken');
