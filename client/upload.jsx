@@ -1,7 +1,7 @@
 const helper = require('./helper.js');
 const { useState, createContext, useContext } = React;
 const UserContext = createContext();
-import Masonry from 'react-masonry-css'
+import Masonry from 'react-masonry-component';
 
 
 // Array to store the different boards a user has
@@ -128,25 +128,27 @@ const MoodImageCard = (props) => {
     return (
         <>
             <div className="moodImage" id={props._id}>
-                <h3>{props.name}</h3>
-                <form id="deleteMoodImage"
-                    name="deleteMoodImage"
-                    onSubmit={handleDeleteImage}
-                    action="/deleteMoodImage"
-                    method="POST"
-                    className="deleteMoodImage"
-                >
-                    <input id="_csrf" type="hidden" name="_csrf" value={props.csrf} />
-                    <input id="imgID" type="hidden" name="imgID" value={props._id} />
-                    <input id="board" type="hidden" name="board" value={props.board} />
-                    <input className="deleteMoodImageSubmit" type="submit" value="X"/>
-                </form>
-                <img src={props.imgSrc} style={{maxWidth:  300+'px'}}/>
+                <div className="imageText">
+                    <h3>{props.name}</h3>
+                    <form id="deleteMoodImage"
+                        name="deleteMoodImage"
+                        onSubmit={handleDeleteImage}
+                        action="/deleteMoodImage"
+                        method="POST"
+                        className="deleteMoodImage"
+                    >
+                        <input id="_csrf" type="hidden" name="_csrf" value={props.csrf} />
+                        <input id="imgID" type="hidden" name="imgID" value={props._id} />
+                        <input id="board" type="hidden" name="board" value={props.board} />
+                        <input className="deleteMoodImageSubmit" type="submit" value="X"/>
+                    </form>
+                </div>
+                <img src={props.imgSrc} style={{maxWidth:  350+'px'}}/>
             </div>
             {props.add == "true" ?
                 <div className="moodImage">
                     <h3>Add</h3>
-                    <img src='https://via.placeholder.com/300x200?text=Add'/>
+                    <img src='https://via.placeholder.com/350x250?text=Add'/>
                 </div>
                 : 
                 <></>
@@ -178,22 +180,19 @@ const MoodImageList = (props) => {
         }
     });
 
-    const breakpointColumnsObj = {
-        default: 4,
-        1100: 3,
-        700: 2,
-        500: 1
-      };
+    const masonryOptions = {
+        transitionDuration: 0
+    };
     return (
-        // <Masonry
-        //     breakpointCols={breakpointColumnsObj}
-        //     className="my-masonry-grid"
-        //     columnClassName="my-masonry-grid_column">
+        // <div className='moodImagesList'>
         //     {moodImagesNodes}
-        // </Masonry>
-        <div className='moodImagesList'>
+        // </div>
+        <Masonry
+            className={'image-masonry'} // default ''
+            options={masonryOptions} // default {}
+        >
             {moodImagesNodes}
-        </div>
+        </Masonry>
     )
 }
 

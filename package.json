@@ -43,7 +43,7 @@
     "express-session": "^1.17.2",
     "helmet": "^5.0.2",
     "mongoose": "^6.2.7",
-    "react-masonry-css": "^1.0.16",
+    "react-masonry-component": "^6.3.0",
     "redis": "^4.5.0",
     "serve-favicon": "^2.5.0",
     "underscore": "^1.13.2",
