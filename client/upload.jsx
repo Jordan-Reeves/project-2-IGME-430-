@@ -1,10 +1,12 @@
 const helper = require('./helper.js');
 const { useState, createContext, useContext } = React;
-const UserContext = createContext()
+const UserContext = createContext();
 
 // Array to store the different boards a user has
 // Then used to dynamically create the select options for WhichBoard
 let selectOptions = [];
+
+let canChange;
 
 // Function for uploading a file
 const uploadFile = async (e, callback) => {
@@ -18,6 +20,7 @@ const uploadFile = async (e, callback) => {
         handleAddBoard(boardVal, e.target.querySelector('#_csrf').value);
 
     } 
+
     // sends file to the server
     const response = await fetch(`/upload?board=${boardVal}`, {
         method: 'POST',
@@ -133,7 +136,7 @@ const MoodImageCard = (props) => {
                     <input id="imgID" type="hidden" name="imgID" value={props._id} />
                     <input className="deleteMoodImageSubmit" type="submit" value="X"/>
                 </form>
-                <img src={`/retrieve?_id=${props._id}`} style={{maxWidth:  500+'px'}}/>
+                <img src={props.imgSrc} style={{maxWidth:  500+'px'}}/>
             </div>
     )
 }
@@ -148,10 +151,20 @@ const MoodImageList = (props) => {
         );
     }
 
-    const moodImagesNodes = props.moodImages.map(moodImage => {
-        return (
-            <MoodImageCard key={moodImage._id} _id={moodImage._id} csrf={props.csrf} name={moodImage.name}/>
-        );
+    const moodImagesNodes = props.moodImages.map((moodImage, index) => {
+        if(index % 2 == 1){
+            return (
+                <>
+                    <MoodImageCard key={moodImage._id} _id={moodImage._id} csrf={props.csrf} name={moodImage.name} imgSrc={`/retrieve?_id=${moodImage._id}`}/>
+                    <MoodImageCard key={index} _id={moodImage._id} csrf={props.csrf} name="Add" imgSrc='https://via.placeholder.com/500x300?text=Add'/>
+
+                </>
+            );
+        } else{
+            return (
+                <MoodImageCard key={moodImage._id} _id={moodImage._id} csrf={props.csrf} name={moodImage.name} imgSrc={`/retrieve?_id=${moodImage._id}`}/>
+            );
+        }
     });
 
     return (
@@ -186,6 +199,69 @@ const loadBoardsFromServer = async () => {
 
 }
 
+
+
+// Changing Password stuff
+const handleCheckPass = async (e) => {
+    e.preventDefault();
+    helper.hideError();
+
+    const pass = e.target.querySelector('#pass').value;
+    const _csrf = e.target.querySelector('#_csrf').value;
+
+    if(!pass){
+        helper.handleError('Password is empty!');
+        return false;
+    }
+    
+    // it's redirecting to the upload page and so not returning jsona and causing issues
+    helper.sendPost('/checkPassword', {pass, _csrf}, (result) => {canChange = result});
+    console.log(canChange);
+    return false;
+}
+
+const CheckPassWindow = (props) => {
+    return (
+        <div>
+            <h2>Confirm your password to continue</h2>
+            <form id="checkPassForm"
+            name="checkPassForm"
+            onSubmit={handleCheckPass}
+            action="/checkPassword"
+            method="POST"
+            className="mainForm"
+            >
+                <label htmlFor="pass">Current Password: </label>
+                <input id="pass" type="password" name="pass" placeholder="password"/>
+                <input id="_csrf" type="hidden" name="_csrf" value={props.csrf} />
+                <input className="formSubmit" type="submit" value="Confirm"/>
+            </form>
+        </div>
+    );
+};
+
+const ChangePassWindow = (props) => {
+    return (
+        <form id="signupForm"
+            name="signupForm"
+            onSubmit={handleChangePass}
+            action="/changePassword"
+            method="POST"
+            className="mainForm"
+        >
+            <label htmlFor="username">Username: </label>
+            <input id="user" type="text" name="username" placeholder="username"/>
+            <label htmlFor="pass">Pasword: </label>
+            <input id="pass" type="password" name="pass" placeholder="password"/>
+            <label htmlFor="pass2">Pasword: </label>
+            <input id="pass2" type="password" name="pass2" placeholder="retype password"/>
+            <input id="_csrf" type="hidden" name="_csrf" value={props.csrf} />
+            <input className="formSubmit" type="submit" value="Sign in"/>
+        </form>
+    );
+};
+
+
 // Gets the csrf token, loads the boards, renders the form, renders the images
 const init = async () => {
     const response = await fetch('/getToken');
@@ -211,9 +287,26 @@ const init = async () => {
 
     // Load images
     loadImagesFromServer(selectOptions[0]);
+
+    const changePassButton = document.getElementById('changePassButton');
+
+    changePassButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        ReactDOM.render(<CheckPassWindow csrf={data.csrfToken} />,
+            document.getElementById('content'));
+        return false;
+    });
 }
 
 window.onload = init;
+
+
+
+
+
+
+
+
 
 
 // // Function for adding a new board

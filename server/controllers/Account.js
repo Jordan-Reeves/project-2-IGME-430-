@@ -62,6 +62,10 @@ const signup = async (req, res) => {
   }
 };
 
+// const changePassPage = (req, res) => {
+//   res.render('app', { csrfToken: req.csrfToken(), layout: "changePass" });
+// };
+
 // Function to let users update their password
 const changePassword = async (req, res) => {
   const username = `${req.body.username}`;
@@ -110,15 +114,16 @@ const checkPassword = (req, res) => {
     return res.status(400).json({ error: 'Password is required!' });
   }
 
-  return Account.authenticate(username, pass, (err, account) => {
-    if (err || !account) {
-      return res.status(401).json({ error: 'Wrong password!' });
-    }
+  // return Account.authenticate(username, pass, (err, account) => {
+  //   if (err || !account) {
+  //     return res.status(401).json({ error: 'Wrong password!' });
+  //   }
 
-    req.session.account = Account.toAPI(account);
+  //   req.session.account = Account.toAPI(account);
 
-    return res.json({ canChange: "true" });
-  });
+  // });
+  return res.json({ canChange: "true" });
+
 };
 
 // Function to all of a users boards back
