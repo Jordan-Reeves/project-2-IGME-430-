@@ -1,6 +1,8 @@
 const helper = require('./helper.js');
 const { useState, createContext, useContext } = React;
 const UserContext = createContext();
+import Masonry from 'react-masonry-css'
+
 
 // Array to store the different boards a user has
 // Then used to dynamically create the select options for WhichBoard
@@ -51,8 +53,9 @@ const handleDeleteImage = (e) => {
 
     const imgID = e.target.querySelector('#imgID').value;
     const _csrf = e.target.querySelector('#_csrf').value;
+    const board = e.target.querySelector('#board').value;
 
-    helper.sendPost(e.target.action, {imgID, _csrf}, loadImagesFromServer);
+    helper.sendPost(e.target.action, {imgID, _csrf,board}, () => {loadImagesFromServer(board)});
     return false;
 }
 
@@ -123,7 +126,8 @@ const WhichBoard = (props) => {
 // Component for each individual image card
 const MoodImageCard = (props) => {
     return (
-        <div key={props._id} className="moodImage" id={props._id}>
+        <>
+            <div className="moodImage" id={props._id}>
                 <h3>{props.name}</h3>
                 <form id="deleteMoodImage"
                     name="deleteMoodImage"
@@ -134,14 +138,25 @@ const MoodImageCard = (props) => {
                 >
                     <input id="_csrf" type="hidden" name="_csrf" value={props.csrf} />
                     <input id="imgID" type="hidden" name="imgID" value={props._id} />
+                    <input id="board" type="hidden" name="board" value={props.board} />
                     <input className="deleteMoodImageSubmit" type="submit" value="X"/>
                 </form>
-                <img src={props.imgSrc} style={{maxWidth:  500+'px'}}/>
+                <img src={props.imgSrc} style={{maxWidth:  300+'px'}}/>
             </div>
+            {props.add == "true" ?
+                <div className="moodImage">
+                    <h3>Add</h3>
+                    <img src='https://via.placeholder.com/300x200?text=Add'/>
+                </div>
+                : 
+                <></>
+            }
+        </>
     )
+
 }
 
-// Component for the list of mood images
+// Component for making the list of mood images, this includes making the adds
 const MoodImageList = (props) => {
     if(props.moodImages.length === 0){
         return (
@@ -154,20 +169,28 @@ const MoodImageList = (props) => {
     const moodImagesNodes = props.moodImages.map((moodImage, index) => {
         if(index % 2 == 1){
             return (
-                <>
-                    <MoodImageCard key={moodImage._id} _id={moodImage._id} csrf={props.csrf} name={moodImage.name} imgSrc={`/retrieve?_id=${moodImage._id}`}/>
-                    <MoodImageCard key={index} _id={moodImage._id} csrf={props.csrf} name="Add" imgSrc='https://via.placeholder.com/500x300?text=Add'/>
-
-                </>
+                <MoodImageCard key={moodImage._id} _id={moodImage._id} csrf={props.csrf} name={moodImage.name} add="true" board={moodImage.board} imgSrc={`/retrieve?_id=${moodImage._id}`}/>
             );
         } else{
             return (
-                <MoodImageCard key={moodImage._id} _id={moodImage._id} csrf={props.csrf} name={moodImage.name} imgSrc={`/retrieve?_id=${moodImage._id}`}/>
+                <MoodImageCard key={moodImage._id} _id={moodImage._id} csrf={props.csrf} name={moodImage.name} add="false" board={moodImage.board} imgSrc={`/retrieve?_id=${moodImage._id}`}/>
             );
         }
     });
 
+    const breakpointColumnsObj = {
+        default: 4,
+        1100: 3,
+        700: 2,
+        500: 1
+      };
     return (
+        // <Masonry
+        //     breakpointCols={breakpointColumnsObj}
+        //     className="my-masonry-grid"
+        //     columnClassName="my-masonry-grid_column">
+        //     {moodImagesNodes}
+        // </Masonry>
         <div className='moodImagesList'>
             {moodImagesNodes}
         </div>
@@ -183,6 +206,7 @@ const loadImagesFromServer = async (boardVal) => {
 
     const responseToken = await fetch('/getToken');
     const token = await responseToken.json();
+
     ReactDOM.render(
         <MoodImageList csrf={token.csrfToken} moodImages={data.moodImages}/>, 
         document.getElementById('moodImages')
