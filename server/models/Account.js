@@ -83,7 +83,7 @@ AccountSchema.statics.getBoards = (callback) => {
 
 // Function to return all of a users username
 AccountSchema.statics.getUsername = (sesID, callback) => {
-  AccountModel.find({_id: sesID }, { username: 1 }).exec(callback);
+  AccountModel.find({ _id: sesID }, { username: 1 }).exec(callback);
 };
 
 // Function to add a board to the front of a users array

@@ -8,23 +8,26 @@ import Masonry from 'react-masonry-component';
 // Then used to dynamically create the select options for WhichBoard
 let selectOptions = [];
 
+// Is premium mode enabled?
+let premiumMode;
+
 let canChange;
 
 // Function for uploading a file
 const uploadFile = async (e, callback) => {
     e.preventDefault();
 
+    // Additional values to send to the server
     const boardVal = e.target.querySelector('#board').value;
-    // console.log(boardVal);
+    const fileName = e.target.querySelector('#fileName').value;
 
-    // add value to the list of boards
+    // Add boardVal to the list of boards in Mongo
     if(!selectOptions.includes(boardVal)){
         handleAddBoard(boardVal, e.target.querySelector('#_csrf').value);
-
     } 
 
-    // sends file to the server
-    const response = await fetch(`/upload?board=${boardVal}`, {
+    // Send file to the server
+    const response = await fetch(`/upload?board=${boardVal}&fileName=${fileName}`, {
         method: 'POST',
         headers:{
             'X-CSRF-TOKEN': e.target.querySelector('#_csrf').value,
@@ -32,16 +35,17 @@ const uploadFile = async (e, callback) => {
         body: new FormData(e.target), // serializes the form, need to do to be able to send files
     });
 
+    // Reload the images from mongo
     loadImagesFromServer(boardVal);
+
+    // Reload the boards from mongo
     const boards = await fetch('/getBoards');
     const boardData = await boards.json();
 
     selectOptions = boardData.userBoards[0].boards;
-    // console.log(selectOptions);
 
-    // console.log(await response);
-    const text = await response.text();
-    helper.handleError(text);
+    const res = await response.json();
+    helper.sendStatus(res);
 
     callback();
 };
@@ -49,19 +53,20 @@ const uploadFile = async (e, callback) => {
 // Function for deleting a mood image
 const handleDeleteImage = (e) => {
     e.preventDefault();
-    helper.hideError();
+    helper.hideStatus();
 
     const imgID = e.target.querySelector('#imgID').value;
     const _csrf = e.target.querySelector('#_csrf').value;
     const board = e.target.querySelector('#board').value;
 
-    helper.sendPost(e.target.action, {imgID, _csrf,board}, () => {loadImagesFromServer(board)});
+    // helper.sendPost(e.target.action, {imgID, _csrf,board}, (res) => {loadImagesFromServer(board); helper.sendStatus(`${res.message}`)});
+    helper.sendPost(e.target.action, {imgID, _csrf,board}, (res) => {loadImagesFromServer(board); helper.sendStatus(res)});
     return false;
 }
 
 // Function for adding a new board
 const handleAddBoard = (newBoard, _csrf) => {
-    helper.hideError();
+    helper.hideStatus();
 
     helper.sendPost('/addBoard', {newBoard, _csrf}, loadBoardsFromServer);
     return false;
@@ -82,11 +87,13 @@ const MoodImageForm = (props) => {
         onSubmit={(e) => {uploadFile(e, () => {  setStoredSelectOptions(selectOptions); setBoardSelect("select");}); }}
         method='post' 
         encType="multipart/form-data">
-          <label htmlFor="sampleFile">Choose an image:</label>
-          <input type="file" name="sampleFile" />
           <UserContext.Provider value={value}>
             <WhichBoard boardSelect={value}/>
           </UserContext.Provider>
+          <label htmlFor="sampleFile">Choose an image:</label>
+          <input type="file" name="sampleFile" />
+          <label htmlFor="fileName">Name the file:</label>
+          <input id="fileName" type="text" name="fileName" />
           <input id="_csrf" type="hidden" name="_csrf" value={props.csrf} />
           <input type='submit' value='Upload!' />
       </form> 
@@ -104,14 +111,13 @@ const WhichBoard = (props) => {
                 <label htmlFor="board">Create a new board:</label>
                 <input id="board" type="text" name="board" />
                 <input type='submit' value='delete board'/>
-
             </> 
         );
     } else { // choose existing/select
         return (
             <>
                 <label htmlFor="board">Choose a board:</label>
-                <select id="board" name="board" onChange={(e) => {setBoardSelect(e.target.value); loadImagesFromServer(e.target.value);}}>
+                <select id="board" name="board" onChange={(e) => {setBoardSelect(e.target.value); loadImagesFromServer(e.target.value); helper.hideStatus();}}>
                     {storedSelectOptions.map(option => {
                         return(
                             <option key={option} value={option}>{option}</option>
@@ -169,10 +175,16 @@ const MoodImageList = (props) => {
     }
 
     const moodImagesNodes = props.moodImages.map((moodImage, index) => {
-        if(index % 2 == 1){
-            return (
-                <MoodImageCard key={moodImage._id} _id={moodImage._id} csrf={props.csrf} name={moodImage.name} add="true" board={moodImage.board} imgSrc={`/retrieve?_id=${moodImage._id}`}/>
-            );
+        if(premiumMode == false){
+            if(index % 2 == 1){
+                return (
+                    <MoodImageCard key={moodImage._id} _id={moodImage._id} csrf={props.csrf} name={moodImage.name} add="true" board={moodImage.board} imgSrc={`/retrieve?_id=${moodImage._id}`}/>
+                );
+            } else{
+                return (
+                    <MoodImageCard key={moodImage._id} _id={moodImage._id} csrf={props.csrf} name={moodImage.name} add="false" board={moodImage.board} imgSrc={`/retrieve?_id=${moodImage._id}`}/>
+                );
+            }
         } else{
             return (
                 <MoodImageCard key={moodImage._id} _id={moodImage._id} csrf={props.csrf} name={moodImage.name} add="false" board={moodImage.board} imgSrc={`/retrieve?_id=${moodImage._id}`}/>
@@ -207,7 +219,7 @@ const loadImagesFromServer = async (boardVal) => {
     const token = await responseToken.json();
 
     ReactDOM.render(
-        <MoodImageList csrf={token.csrfToken} moodImages={data.moodImages}/>, 
+        <MoodImageList csrf={token.csrfToken} moodImages={data.moodImages} premiumMode={premiumMode}/>, 
         document.getElementById('moodImages')
     );
 }
@@ -227,13 +239,13 @@ const loadBoardsFromServer = async () => {
 // Changing Password stuff
 const handleCheckPass = async (e) => {
     e.preventDefault();
-    helper.hideError();
+    helper.hideStatus();
 
     const pass = e.target.querySelector('#pass').value;
     const _csrf = e.target.querySelector('#_csrf').value;
 
     if(!pass){
-        helper.handleError('Password is empty!');
+        helper.sendStatus('Password is empty!');
         return false;
     }
     
@@ -287,6 +299,7 @@ const ChangePassWindow = (props) => {
 
 // Gets the csrf token, loads the boards, renders the form, renders the images
 const init = async () => {
+    // Get the csrf token
     const response = await fetch('/getToken');
     const data = await response.json();
 
@@ -294,6 +307,19 @@ const init = async () => {
     const boards = await fetch('/getBoards');
     const boardData = await boards.json();
 
+    // Get value of the checkbox for premium mode
+    // Add an event listener to reload page if checkbox changed
+    const premiumModeCheck = document.getElementById('premiumMode');
+    premiumMode = premiumModeCheck.checked;
+
+    premiumModeCheck.addEventListener('change', (e) => {
+        e.preventDefault();
+        premiumMode = premiumModeCheck.checked;
+        loadImagesFromServer(document.getElementById("board").value);
+        return false;
+    });
+
+    // Store the values of the boards
     selectOptions = boardData.userBoards[0].boards;
 
     // Render the form
@@ -304,7 +330,7 @@ const init = async () => {
 
     // Render the component for the array of images
     ReactDOM.render(
-        <MoodImageList csrf={data.csrfToken} moodImages={[]}/>, 
+        <MoodImageList csrf={data.csrfToken} moodImages={[]} premiumMode={premiumMode}/>, 
         document.getElementById('moodImages')
     );
 
@@ -334,7 +360,7 @@ window.onload = init;
 
 // // Function for adding a new board
 // const handleDeleteBoard = (oldBoard, _csrf) => {
-//     helper.hideError();
+//     helper.hideStatus();
 
 //     helper.sendPost('/deleteBoard', {oldBoard, _csrf}, loadBoardsFromServer);
 //     return false;

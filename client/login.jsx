@@ -1,16 +1,16 @@
 const helper = require('./helper.js');
 
-
+// Function to login users
 const handleLogin = (e) => {
     e.preventDefault();
-    helper.hideError();
+    helper.hideStatus();
 
     const username = e.target.querySelector('#user').value;
     const pass = e.target.querySelector('#pass').value;
     const _csrf = e.target.querySelector('#_csrf').value;
 
     if(!username || !pass){
-        helper.handleError('Username or password is empty!');
+        helper.sendStatus({error:'Username or password is empty!'});
         return false;
     }
 
@@ -20,9 +20,10 @@ const handleLogin = (e) => {
 
 }
 
+// Function to signup users
 const handleSignup = (e) => {
     e.preventDefault();
-    helper.hideError();
+    helper.hideStatus();
 
     const username = e.target.querySelector('#user').value;
     const pass = e.target.querySelector('#pass').value;
@@ -30,11 +31,11 @@ const handleSignup = (e) => {
     const _csrf = e.target.querySelector('#_csrf').value;
 
     if(!username || !pass || !pass2){
-        helper.handleError('All fields are required!');
+        helper.sendStatus({error:'All fields are required!'});
         return false;
     }
     if(pass !== pass2){
-        helper.handleError('Passwords do not match!');
+        helper.sendStatus({error:'Passwords do not match!'});
         return false;
     }
 
@@ -42,7 +43,7 @@ const handleSignup = (e) => {
     return false;
 }
 
-
+// Component for logingin
 const LoginWindow = (props) => {
     return (
         <form id="loginForm"
@@ -62,6 +63,7 @@ const LoginWindow = (props) => {
     );
 };
 
+// Component for signingup
 const SignupWindow = (props) => {
     return (
         <form id="signupForm"
@@ -93,6 +95,7 @@ const init = async () => {
 
     loginButton.addEventListener('click', (e) => {
         e.preventDefault();
+        helper.hideStatus();
         ReactDOM.render(<LoginWindow csrf={data.csrfToken} />,
             document.getElementById('content'));
         return false;
@@ -100,6 +103,7 @@ const init = async () => {
 
     signupButton.addEventListener('click', (e) => {
         e.preventDefault();
+        helper.hideStatus();
         ReactDOM.render(<SignupWindow csrf={data.csrfToken} />,
             document.getElementById('content'));
         return false;

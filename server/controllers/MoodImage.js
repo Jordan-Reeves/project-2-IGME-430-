@@ -16,6 +16,8 @@ const uploadFile = async (req, res) => {
   const { sampleFile } = req.files;
   sampleFile.owner = req.session.account._id;
   sampleFile.board = req.query.board;
+  // Change the filename if an alternative fileName was provided
+  sampleFile.name = req.query.fileName ? req.query.fileName : sampleFile.name;
 
   // Check that the file is an image and if so try to upload it
   if (sampleFile.mimetype === 'image/png' || sampleFile.mimetype === 'image/jpeg') {
