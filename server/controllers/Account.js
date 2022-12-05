@@ -62,67 +62,54 @@ const signup = async (req, res) => {
   }
 };
 
-// const changePassPage = (req, res) => {
-//   res.render('app', { csrfToken: req.csrfToken(), layout: "changePass" });
-// };
-
 // Function to let users update their password
 const changePassword = async (req, res) => {
-  const username = `${req.body.username}`;
+  // Store the Vars
+  const username = req.session.account.username;
   const pass = `${req.body.pass}`;
-  // const pass2 = `${req.body.pass2}`;
+  const pass2 = `${req.body.pass2}`;
+  
+  // Chech that all data is present
+  if (!username || !pass || !pass2) {
+    return res.status(400).json({ error: 'Password must be typed twice!' });
+  }
 
-  return Account.authenticate(username, pass, (err, account) => {
-    if (err || !account) {
-      return res.status(401).json({ error: 'Wrong username or password!' });
-    }
+  // Check that the 2 passwords match
+  if (pass !== pass2) {
+    return res.status(400).json({ error: 'Passwords do not match!' });
+  }
 
-    req.session.account = Account.toAPI(account);
-
-    return res.json({ redirect: '/upload' });
-  });
-
-  // if (!username || !pass || !pass2) {
-  //   return res.status(400).json({ error: 'All fields are required!' });
-  // }
-
-  // if (pass !== pass2) {
-  //   return res.status(400).json({ error: 'Passwords do not match!' });
-  // }
-
-  // try {
-  //   const hash = await Account.generateHash(pass);
-  //   const newAccount = new Account({ username, password: hash });
-  //   await newAccount.save();
-  //   req.session.account = Account.toAPI(newAccount);
-  //   return res.json({ redirect: '/upload' });
-  // } catch (err) {
-  //   console.log(err);
-  //   if (err.code === 11000) {
-  //     return res.status(400).json({ error: 'Username already in use.' });
-  //   }
-  //   return res.status(400).json({ error: 'An error occured' });
-  // }
+  //TTry to make a hash with the new password and update the Account with it
+  try {
+    const hash = await Account.generateHash(pass);
+    await Account.updateOne({username: username}, {password:hash})
+    return res.json({ message: 'Password successfully changed', changed: true });
+  } catch (err) {
+    console.log(err);
+    return res.json({ error: 'Password not changed'});
+  }
 };
 
 // Function to check users password before allowing them to change it
 const checkPassword = (req, res) => {
-  // const username = Account.getUsername(req.session.account);
+  // Store the vars
+  let username = req.session.account.username;
   const pass = `${req.body.pass}`;
 
+  // Check that something was typed
   if (!pass) {
     return res.status(400).json({ error: 'Password is required!' });
   }
 
-  // return Account.authenticate(username, pass, (err, account) => {
-  //   if (err || !account) {
-  //     return res.status(401).json({ error: 'Wrong password!' });
-  //   }
+  // Check that the password typed matchs the one stored for this user
+  return Account.authenticate(username, pass, (err, account) => {
+    if (err || !account) {
+      return res.status(401).json({ error: 'Password did not match try again!', canChange: false });
+    }
 
-  //   req.session.account = Account.toAPI(account);
-
-  // });
-  return res.json({ canChange: 'true' });
+    req.session.account = Account.toAPI(account);
+    return res.json({ message: 'Password matched!', canChange: true});
+  });
 };
 
 // Function to all of a users boards back

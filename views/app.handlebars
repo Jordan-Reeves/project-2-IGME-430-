@@ -9,26 +9,28 @@
 </head>
 <body>
   <nav><a href="/login"><img id="logo" src="/assets/img/face.png" alt="face logo"/></a>
-    <input type="checkbox" id="premiumMode" name="premiumMode">
-    <label for="premiumMode"> Premium Mode</label>
+    <div class="navlink" id="boards"><a>Boards</a></div>
+    <div class="navlink">
+      <input type="checkbox" id="premiumMode" name="premiumMode">
+      <label for="premiumMode"> Premium Mode</label>
+    </div>
     <div class="navlink"><a href="/logout">Log out</a></div>
     <div class="navlink" id="changePassButton"><a>Change Password</a></div>
   </nav>
 
 
-  <section id="content">
-    <section id="uploadForm">
-
-    </section>
-
-    <div id="status" class='hidden'>
+  <div id="status" class='hidden'>
       <h3><span id="statusMessage"></span></h3>
     </div>
+
+  <section id="changePass">
+  </section>
+
+    <section id="uploadForm">
+    </section>
     
     <section id="moodImages">
-      
     </section>
-  </section>
 
   <script src="/assets/appBundle.js"></script>
 </body>

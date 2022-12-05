@@ -3,15 +3,12 @@ const { useState, createContext, useContext } = React;
 const UserContext = createContext();
 import Masonry from 'react-masonry-component';
 
-
 // Array to store the different boards a user has
 // Then used to dynamically create the select options for WhichBoard
 let selectOptions = [];
 
 // Is premium mode enabled?
 let premiumMode;
-
-let canChange;
 
 // Function for uploading a file
 const uploadFile = async (e, callback) => {
@@ -218,6 +215,8 @@ const loadImagesFromServer = async (boardVal) => {
     const responseToken = await fetch('/getToken');
     const token = await responseToken.json();
 
+    ReactDOM.unmountComponentAtNode(document.getElementById('moodImages'));
+
     ReactDOM.render(
         <MoodImageList csrf={token.csrfToken} moodImages={data.moodImages} premiumMode={premiumMode}/>, 
         document.getElementById('moodImages')
@@ -235,8 +234,9 @@ const loadBoardsFromServer = async () => {
 }
 
 
+// Changing the Password
 
-// Changing Password stuff
+// Function to check if the password matches the stored password
 const handleCheckPass = async (e) => {
     e.preventDefault();
     helper.hideStatus();
@@ -245,16 +245,24 @@ const handleCheckPass = async (e) => {
     const _csrf = e.target.querySelector('#_csrf').value;
 
     if(!pass){
-        helper.sendStatus('Password is empty!');
+        helper.sendStatus({message:'Password is empty!'});
         return false;
     }
     
-    // it's redirecting to the upload page and so not returning jsona and causing issues
-    helper.sendPost('/checkPassword', {pass, _csrf}, (result) => {canChange = result});
-    console.log(canChange);
+    helper.sendPost('/checkPassword', {pass, _csrf}, (result) => {
+        if(result.canChange){
+            helper.sendStatus(result)
+            ReactDOM.render(<ChangePassWindow csrf={_csrf} />,
+                document.getElementById('changePass'));
+        } else{
+            helper.sendStatus(result)
+        }
+        
+    });
     return false;
 }
 
+// Component for checking if the password matches the stored password
 const CheckPassWindow = (props) => {
     return (
         <div>
@@ -272,9 +280,33 @@ const CheckPassWindow = (props) => {
                 <input className="formSubmit" type="submit" value="Confirm"/>
             </form>
         </div>
+
     );
 };
 
+
+// Function to change the stored password to a new one
+const handleChangePass = async (e) => {
+    e.preventDefault();
+    helper.hideStatus();
+
+    const pass = e.target.querySelector('#pass').value;
+    const pass2 = e.target.querySelector('#pass2').value;
+    const _csrf = e.target.querySelector('#_csrf').value;
+
+    if(!pass || !pass2){
+        helper.sendStatus({message:'Password must be typed twice'});
+        return false;
+    }
+    
+    helper.sendPost('/changePassword', {pass, pass2, _csrf}, (result) => {
+        helper.sendStatus(result);
+    });
+    
+    return false;
+}
+
+// Component for changing the stored password to a new one
 const ChangePassWindow = (props) => {
     return (
         <form id="signupForm"
@@ -284,26 +316,24 @@ const ChangePassWindow = (props) => {
             method="POST"
             className="mainForm"
         >
-            <label htmlFor="username">Username: </label>
-            <input id="user" type="text" name="username" placeholder="username"/>
-            <label htmlFor="pass">Pasword: </label>
-            <input id="pass" type="password" name="pass" placeholder="password"/>
-            <label htmlFor="pass2">Pasword: </label>
-            <input id="pass2" type="password" name="pass2" placeholder="retype password"/>
+            <label htmlFor="pass">New Pasword: </label>
+            <input id="pass" type="password" name="pass" placeholder="New password"/>
+            <label htmlFor="pass2">Retype Pasword: </label>
+            <input id="pass2" type="password" name="pass2" placeholder="Retype password"/>
             <input id="_csrf" type="hidden" name="_csrf" value={props.csrf} />
-            <input className="formSubmit" type="submit" value="Sign in"/>
+            <input className="formSubmit" type="submit" value="Change"/>
         </form>
     );
 };
 
 
-// Gets the csrf token, loads the boards, renders the form, renders the images
+// Gets the csrf token, loads the boards, renders the form, renders the images, add event listeners
 const init = async () => {
     // Get the csrf token
     const response = await fetch('/getToken');
     const data = await response.json();
 
-    // load the arrary of users boards
+    // Load the arrary of users boards
     const boards = await fetch('/getBoards');
     const boardData = await boards.json();
 
@@ -328,21 +358,38 @@ const init = async () => {
         document.getElementById('uploadForm')
     );
 
-    // Render the component for the array of images
-    ReactDOM.render(
-        <MoodImageList csrf={data.csrfToken} moodImages={[]} premiumMode={premiumMode}/>, 
-        document.getElementById('moodImages')
-    );
-
-    // Load images
+    // Load the images and render the component to display them
     loadImagesFromServer(selectOptions[0]);
 
-    const changePassButton = document.getElementById('changePassButton');
 
+    // Add event listener to go to render the CheckPassWindow when Change Password is clicked
+    const changePassButton = document.getElementById('changePassButton');
     changePassButton.addEventListener('click', (e) => {
         e.preventDefault();
+
+        // Unmount the other components to "clear" the screen
+        ReactDOM.unmountComponentAtNode(document.getElementById('moodImages'));
+        ReactDOM.unmountComponentAtNode(document.getElementById('uploadForm'));
+
         ReactDOM.render(<CheckPassWindow csrf={data.csrfToken} />,
-            document.getElementById('content'));
+            document.getElementById('changePass'));
+        return false;
+    });
+
+    // Add event listener to go to render the MoodImageForm & MoodImageList when Boards is clicked
+    const viewBoardsButton = document.getElementById('boards');
+    viewBoardsButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        helper.hideStatus();
+
+        // Unmount the changePass component to "clear" the screen
+        ReactDOM.unmountComponentAtNode(document.getElementById('changePass'));
+        
+        loadImagesFromServer(selectOptions[0]);
+        ReactDOM.render(
+            <MoodImageForm csrf={data.csrfToken} boardSelect="select" selectOptions={selectOptions}/>, 
+            document.getElementById('uploadForm')
+        );
         return false;
     });
 }

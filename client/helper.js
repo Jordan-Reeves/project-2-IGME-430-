@@ -1,6 +1,6 @@
 // Accepts and object and displays the message or error of it
 const sendStatus = (message) => {
-  console.log(message);
+  // console.log(message);
   let displayText = '';
   for (const property in message) {
     if(property == 'message' || property == "error"){
@@ -28,7 +28,7 @@ const sendPost = async (url, data, handler) => {
   const result = await response.json();
   // console.log(result);
 
-  // Hid the status
+  // Hide the status
   document.getElementById('status').classList.add('hidden');
 
   // Redirect if needed
@@ -47,7 +47,7 @@ const sendPost = async (url, data, handler) => {
   }
 };
 
-// Hid the status text
+// Hide the status text
 const hideStatus = () => {
     document.getElementById('status').classList.add('hidden');
 }

@@ -12,8 +12,8 @@ const router = (app) => {
 
   app.get('/logout', mid.requiresLogin, controllers.Account.logout);
 
-  app.post('/checkPassword', mid.requiresSecure, mid.requiresLogout, controllers.Account.checkPassword);
-  app.post('/changePassword', mid.requiresSecure, mid.requiresLogout, controllers.Account.changePassword);
+  app.post('/checkPassword', mid.requiresSecure, mid.requiresLogin, controllers.Account.checkPassword);
+  app.post('/changePassword', mid.requiresSecure, mid.requiresLogin, controllers.Account.changePassword);
 
   app.get('/upload', mid.requiresLogin, controllers.MoodImage.uploadPage);
   app.post('/upload', mid.requiresLogin, controllers.MoodImage.uploadFile);
