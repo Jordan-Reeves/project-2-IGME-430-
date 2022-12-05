@@ -35,7 +35,7 @@ const AccountSchema = new mongoose.Schema({
   },
   boards: {
     type: [String],
-    default: ['Board 1', 'Create New'],
+    default: ['Favorite Color', 'Create New'],
   },
   createdDate: {
     type: Date,

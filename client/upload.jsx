@@ -107,7 +107,7 @@ const WhichBoard = (props) => {
             <>
                 <label htmlFor="board">Create a new board:</label>
                 <input id="board" type="text" name="board" />
-                <input type='submit' value='delete board'/>
+                <input type='submit' value='Create board'/>
             </> 
         );
     } else { // choose existing/select
@@ -275,7 +275,7 @@ const CheckPassWindow = (props) => {
             className="mainForm"
             >
                 <label htmlFor="pass">Current Password: </label>
-                <input id="pass" type="password" name="pass" placeholder="password"/>
+                <input id="pass" type="password" name="pass" placeholder="Password"/>
                 <input id="_csrf" type="hidden" name="_csrf" value={props.csrf} />
                 <input className="formSubmit" type="submit" value="Confirm"/>
             </form>
@@ -384,7 +384,7 @@ const init = async () => {
 
         // Unmount the changePass component to "clear" the screen
         ReactDOM.unmountComponentAtNode(document.getElementById('changePass'));
-        
+
         loadImagesFromServer(selectOptions[0]);
         ReactDOM.render(
             <MoodImageForm csrf={data.csrfToken} boardSelect="select" selectOptions={selectOptions}/>, 
