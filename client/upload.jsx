@@ -86,7 +86,7 @@ const MoodImageForm = (props) => {
         onSubmit={(e) => {uploadFile(e, () => {  setStoredSelectOptions(selectOptions); setBoardSelect("select");}); }}
         method='post' 
         encType="multipart/form-data"
-        className='flex flex-row justify-between space-x-1 mx-2'>
+        className='flex flex-row justify-between space-x-1 mx-2 max-w-5xl'>
           <UserContext.Provider value={value}>
             <WhichBoard boardSelect={value}/>
           </UserContext.Provider>
@@ -97,20 +97,11 @@ const MoodImageForm = (props) => {
 
           <div className='inline'>
             <label htmlFor="fileName" className="pr-2">Rename the file:</label>
-            <input id="fileName" type="text" name="fileName" className="bg-slate-100 my-1 h-3 border border-slate-200 text-slate-500 text-sm p-2.5" placeholder="John"/>
+            <input id="fileName" type="text" name="fileName" className="bg-slate-100 my-1 h-3 border border-slate-200 placeholder:text-slate-500 text-sm p-2.5 placeholder:italic" placeholder="Ex. Snow"/>
           </div>
 
           <input id="_csrf" type="hidden" name="_csrf" value={props.csrf} />
-          <input type='submit' value='Upload!' className="rounded border border-1 border-slate-500 bg-slate-100 m-1 px-2"/>
-
-
-
-          {/* <label htmlFor="sampleFile">Choose an image:</label>
-          <input type="file" name="sampleFile" /> */}
-          {/* <label htmlFor="fileName">Name the file:</label>
-          <input id="fileName" type="text" name="fileName" />
-          <input id="_csrf" type="hidden" name="_csrf" value={props.csrf} />
-          <input type='submit' value='Upload!' /> */}
+          <input type='submit' value='Upload!' className="rounded border border-1 border-slate-500 bg-slate-100 m-1 px-2 hover:bg-emerald-100"/>
       </form> 
     );
 };
@@ -125,15 +116,15 @@ const WhichBoard = (props) => {
             <>
                 {/* <label htmlFor="board">Create a new board:</label>
                 <input id="board" type="text" name="board" /> */}
-                <label htmlFor="board" class="pr-2">Create new board:</label>
-                <input id="board" type="text" name="board" class="bg-slate-100 my-1 h-3 border border-slate-200 text-slate-500 text-sm p-2.5" placeholder="New board"/>
+                <label htmlFor="board" className="pr-2">Create new board:</label>
+                <input id="board" type="text" name="board" className="bg-slate-100 my-1 h-3 border border-slate-200 placeholder:text-slate-500 text-sm p-2.5 placeholder:italic" placeholder="Ex. New board"/>
             </> 
         );
     } else { // choose existing/select
         return (
             <div className='inline my-1'>
-            <label htmlFor="board" class="inline mr-2 mb-2 text-gray-900">Select an option:</label>
-            <select id="board" name="board" onChange={(e) => {setBoardSelect(e.target.value); loadImagesFromServer(e.target.value); helper.hideStatus();}} class="inline bg-slate-100 border border-slate-500 text-slate-500 text-sm">
+            <label htmlFor="board" className="inline mr-2 mb-2 text-gray-900">Select an option:</label>
+            <select id="board" name="board" onChange={(e) => {setBoardSelect(e.target.value); loadImagesFromServer(e.target.value); helper.hideStatus();}} className="inline bg-slate-100 border border-slate-500 text-slate-500 text-sm">
                 
                 {/* <label htmlFor="board">Choose a board:</label>
                 <select id="board" name="board" onChange={(e) => {setBoardSelect(e.target.value); loadImagesFromServer(e.target.value); helper.hideStatus();}}> */}
@@ -152,28 +143,28 @@ const WhichBoard = (props) => {
 const MoodImageCard = (props) => {
     return (
         <>
-            <div className="moodImage" id={props._id}>
-                <div className="imageText">
-                    <h3>{props.name}</h3>
+            <div className="moodImage m-3" id={props._id}>
+                <div className="imageText flex flex-row justify-between">
+                    <h3 className="font-semibold">{props.name}</h3>
                     <form id="deleteMoodImage"
                         name="deleteMoodImage"
                         onSubmit={handleDeleteImage}
                         action="/deleteMoodImage"
                         method="POST"
-                        className="deleteMoodImage"
+                        className="deleteMoodImage mb-2"
                     >
                         <input id="_csrf" type="hidden" name="_csrf" value={props.csrf} />
                         <input id="imgID" type="hidden" name="imgID" value={props._id} />
                         <input id="board" type="hidden" name="board" value={props.board} />
-                        <input className="deleteMoodImageSubmit" type="submit" value="X"/>
+                        <input className="deleteMoodImageSubmit px-2 py-0 rounded border border-1 border-slate-500 bg-slate-100 hover:bg-rose-200" type="submit" value="X"/>
                     </form>
                 </div>
                 <img src={props.imgSrc} style={{maxWidth:  350+'px'}}/>
             </div>
             {props.add == "true" ?
-                <div className="moodImage">
-                    <h3>Add</h3>
-                    <img src='https://via.placeholder.com/350x250?text=Add'/>
+                <div className="moodImage m-3">
+                    <h3 className="font-semibold">Add</h3>
+                    <img src='https://via.placeholder.com/350x200?text=Add'/>
                 </div>
                 : 
                 <></>
@@ -287,20 +278,24 @@ const handleCheckPass = async (e) => {
 // Component for checking if the password matches the stored password
 const CheckPassWindow = (props) => {
     return (
-        <div>
-            <h2>Confirm your password to continue</h2>
-            <form id="checkPassForm"
-            name="checkPassForm"
-            onSubmit={handleCheckPass}
-            action="/checkPassword"
-            method="POST"
-            className="mainForm"
-            >
-                <label htmlFor="pass">Current Password: </label>
-                <input id="pass" type="password" name="pass" placeholder="Password"/>
-                <input id="_csrf" type="hidden" name="_csrf" value={props.csrf} />
-                <input className="formSubmit" type="submit" value="Confirm"/>
-            </form>
+        <div className='relative w-full h-full'>
+            <div className='absolute top-1/2 left-1/2 translate-y-[-50%] translate-x-[-50%]'>
+                <h2 className='text-lg font-semibold text-center mb-4'>Confirm your password to continue</h2>
+                <form id="checkPassForm"
+                name="checkPassForm"
+                onSubmit={handleCheckPass}
+                action="/checkPassword"
+                method="POST"
+                className="mainForm "
+                >
+                    <div className='inline'>
+                        <label htmlFor="pass" className="pr-2">Current Password: </label>
+                        <input id="pass" type="password" name="pass" className="bg-slate-100 my-1 h-3 border border-slate-200 placeholder:text-slate-500 text-sm p-2.5 placeholder:italic" placeholder="Password"/>
+                    </div>
+                    <input id="_csrf" type="hidden" name="_csrf" value={props.csrf} />
+                    <input className="formSubmit block rounded border border-1 border-slate-500 bg-slate-100 mx-auto my-4 px-2 hover:bg-emerald-100" type="submit" value="Confirm"/>
+                </form>
+            </div>
         </div>
 
     );
@@ -331,20 +326,29 @@ const handleChangePass = async (e) => {
 // Component for changing the stored password to a new one
 const ChangePassWindow = (props) => {
     return (
-        <form id="signupForm"
-            name="signupForm"
-            onSubmit={handleChangePass}
-            action="/changePassword"
-            method="POST"
-            className="mainForm"
-        >
-            <label htmlFor="pass">New Pasword: </label>
-            <input id="pass" type="password" name="pass" placeholder="New password"/>
-            <label htmlFor="pass2">Retype Pasword: </label>
-            <input id="pass2" type="password" name="pass2" placeholder="Retype password"/>
-            <input id="_csrf" type="hidden" name="_csrf" value={props.csrf} />
-            <input className="formSubmit" type="submit" value="Change"/>
-        </form>
+        <div className='relative w-full h-full'>
+            <div className='absolute top-1/2 left-1/2 translate-y-[-50%] translate-x-[-50%]'>
+                <h2 className='text-lg font-semibold text-center mb-4'>Enter your new password!</h2>
+                <form id="signupForm"
+                    name="signupForm"
+                    onSubmit={handleChangePass}
+                    action="/changePassword"
+                    method="POST"
+                    className="mainForm"
+                >
+                    <div className='block'>
+                        <label htmlFor="pass" className="pr-2">New Password: </label>
+                        <input id="pass" type="password" name="pass" className="bg-slate-100 my-1 h-3 border border-slate-200 placeholder:text-slate-500 text-sm p-2.5 placeholder:italic" placeholder="New password"/>
+                    </div>
+                    <div className='block'>
+                        <label htmlFor="pass2" className="pr-2">Retype Password: </label>
+                        <input id="pass2" type="password" name="pass2" className="bg-slate-100 my-1 h-3 border border-slate-200 placeholder:text-slate-500 text-sm p-2.5 placeholder:italic" placeholder="Retype password"/>
+                    </div>
+                    <input id="_csrf" type="hidden" name="_csrf" value={props.csrf} />
+                    <input className="formSubmit block rounded border border-1 border-slate-500 bg-slate-100 mx-auto my-4 px-2 hover:bg-emerald-100" type="submit" value="Change"/>
+                </form>
+            </div>
+        </div>
     );
 };
 

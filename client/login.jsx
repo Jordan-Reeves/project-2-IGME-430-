@@ -46,42 +46,80 @@ const handleSignup = (e) => {
 // Component for logingin
 const LoginWindow = (props) => {
     return (
-        <form id="loginForm"
-            name="loginForm"
-            onSubmit={handleLogin}
-            action="/login"
-            method="POST"
-            className="mainForm"
-        >
-            <label htmlFor="username">Username: </label>
-            <input id="user" type="text" name="username" placeholder="Username"/>
-            <label htmlFor="pass">Pasword: </label>
-            <input id="pass" type="password" name="pass" placeholder="Password"/>
-            <input id="_csrf" type="hidden" name="_csrf" value={props.csrf} />
-            <input className="formSubmit" type="submit" value="Sign in"/>
-        </form>
+        <div className='relative w-full h-full'>
+            <div className='absolute top-1/2 left-1/2 translate-y-[-50%] translate-x-[-50%]'>
+                <h2 className='text-lg font-semibold text-center mb-4'>Login</h2>
+                <form id="loginForm"
+                    name="loginForm"
+                    onSubmit={handleLogin}
+                    action="/login"
+                    method="POST"
+                    className="mainForm"
+                >
+                    {/* <label htmlFor="username">Username: </label>
+                    <input id="user" type="text" name="username" placeholder="Username"/>
+                    <label htmlFor="pass">Pasword: </label>
+                    <input id="pass" type="password" name="pass" placeholder="Password"/>
+                    <input id="_csrf" type="hidden" name="_csrf" value={props.csrf} />
+                    <input className="formSubmit" type="submit" value="Sign in"/> */}
+
+                    <div className='block'>
+                        <label htmlFor="username" className="pr-2">Username: </label>
+                        <input id="user" type="text" name="username" className="bg-slate-100 my-1 h-3 border border-slate-200 placeholder:text-slate-500 text-sm p-2.5 placeholder:italic" placeholder="New password"/>
+                    </div>
+                    <div className='block'>
+                        <label htmlFor="pass" className="pr-2">Password: </label>
+                        <input id="pass" type="password" name="pass" className="bg-slate-100 my-1 h-3 border border-slate-200 placeholder:text-slate-500 text-sm p-2.5 placeholder:italic" placeholder="New password"/>
+                    </div>
+                    <input id="_csrf" type="hidden" name="_csrf" value={props.csrf} />
+                    <input className="formSubmit block rounded border border-1 border-slate-500 bg-slate-100 mx-auto my-4 px-2 hover:bg-emerald-100" type="submit" value="Sign in"/>
+                
+                </form>
+            </div>
+        </div>
     );
 };
 
 // Component for signingup
 const SignupWindow = (props) => {
     return (
-        <form id="signupForm"
-            name="signupForm"
-            onSubmit={handleSignup}
-            action="/signup"
-            method="POST"
-            className="mainForm"
-        >
-            <label htmlFor="username">Username: </label>
-            <input id="user" type="text" name="username" placeholder="Username"/>
-            <label htmlFor="pass">Pasword: </label>
-            <input id="pass" type="password" name="pass" placeholder="Password"/>
-            <label htmlFor="pass2">Pasword: </label>
-            <input id="pass2" type="password" name="pass2" placeholder="Retype password"/>
-            <input id="_csrf" type="hidden" name="_csrf" value={props.csrf} />
-            <input className="formSubmit" type="submit" value="Sign in"/>
-        </form>
+        <div className='relative w-full h-full'>
+            <div className='absolute top-1/2 left-1/2 translate-y-[-50%] translate-x-[-50%]'>
+                <h2 className='text-lg font-semibold text-center mb-4'>Sign Up!</h2>
+                <form id="signupForm"
+                    name="signupForm"
+                    onSubmit={handleSignup}
+                    action="/signup"
+                    method="POST"
+                    className="mainForm"
+                >
+                    {/* <label htmlFor="username">Username: </label>
+                    <input id="user" type="text" name="username" placeholder="Username"/>
+                    <label htmlFor="pass">Pasword: </label>
+                    <input id="pass" type="password" name="pass" placeholder="Password"/>
+                    <label htmlFor="pass2">Pasword: </label>
+                    <input id="pass2" type="password" name="pass2" placeholder="Retype password"/>
+                    <input id="_csrf" type="hidden" name="_csrf" value={props.csrf} />
+                    <input className="formSubmit" type="submit" value="Sign in"/> */}
+
+                    <div className='block'>
+                        <label htmlFor="username" className="pr-2">Username: </label>
+                        <input id="user" type="text" name="username" className="bg-slate-100 my-1 h-3 border border-slate-200 placeholder:text-slate-500 text-sm p-2.5 placeholder:italic" placeholder="New password"/>
+                    </div>
+                    <div className='block'>
+                        <label htmlFor="pass" className="pr-2">Password: </label>
+                        <input id="pass" type="password" name="pass" className="bg-slate-100 my-1 h-3 border border-slate-200 placeholder:text-slate-500 text-sm p-2.5 placeholder:italic" placeholder="New password"/>
+                    </div>
+                    <div className='block'>
+                        <label htmlFor="pass2" className="pr-2">Password: </label>
+                        <input id="pass2" type="password" name="pass2" className="bg-slate-100 my-1 h-3 border border-slate-200 placeholder:text-slate-500 text-sm p-2.5 placeholder:italic" placeholder="Retype password"/>
+                    </div>
+                    <input id="_csrf" type="hidden" name="_csrf" value={props.csrf} />
+                    <input className="formSubmit block rounded border border-1 border-slate-500 bg-slate-100 mx-auto my-4 px-2 hover:bg-emerald-100" type="submit" value="Sign up"/>
+                        
+                </form>
+            </div>
+        </div>
     );
 };
 
