@@ -2,6 +2,8 @@ const helper = require('./helper.js');
 const { useState, createContext, useContext } = React;
 const UserContext = createContext();
 import Masonry from 'react-masonry-component';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faCloudArrowUp } from '@fortawesome/free-solid-svg-icons'
 
 // Array to store the different boards a user has
 // Then used to dynamically create the select options for WhichBoard
@@ -83,16 +85,32 @@ const MoodImageForm = (props) => {
         action='/upload' 
         onSubmit={(e) => {uploadFile(e, () => {  setStoredSelectOptions(selectOptions); setBoardSelect("select");}); }}
         method='post' 
-        encType="multipart/form-data">
+        encType="multipart/form-data"
+        className='flex flex-row justify-between space-x-1 mx-2'>
           <UserContext.Provider value={value}>
             <WhichBoard boardSelect={value}/>
           </UserContext.Provider>
-          <label htmlFor="sampleFile">Choose an image:</label>
-          <input type="file" name="sampleFile" />
-          <label htmlFor="fileName">Name the file:</label>
+          <div className='inline mt-1'>
+            <label className="inline mb-2 text-sm" htmlFor="sampleFile"><FontAwesomeIcon icon={faCloudArrowUp} className="pr-2"/></label>
+            <input className="inline text-sm text-slate-500 border border-slate-200 cursor-pointer bg-slate-50" name="sampleFile" type="file"/>
+          </div>
+
+          <div className='inline'>
+            <label htmlFor="fileName" className="pr-2">Rename the file:</label>
+            <input id="fileName" type="text" name="fileName" className="bg-slate-100 my-1 h-3 border border-slate-200 text-slate-500 text-sm p-2.5" placeholder="John"/>
+          </div>
+
+          <input id="_csrf" type="hidden" name="_csrf" value={props.csrf} />
+          <input type='submit' value='Upload!' className="rounded border border-1 border-slate-500 bg-slate-100 m-1 px-2"/>
+
+
+
+          {/* <label htmlFor="sampleFile">Choose an image:</label>
+          <input type="file" name="sampleFile" /> */}
+          {/* <label htmlFor="fileName">Name the file:</label>
           <input id="fileName" type="text" name="fileName" />
           <input id="_csrf" type="hidden" name="_csrf" value={props.csrf} />
-          <input type='submit' value='Upload!' />
+          <input type='submit' value='Upload!' /> */}
       </form> 
     );
 };
@@ -105,22 +123,27 @@ const WhichBoard = (props) => {
     if(boardSelect == "Create New"){
         return (
             <>
-                <label htmlFor="board">Create a new board:</label>
-                <input id="board" type="text" name="board" />
+                {/* <label htmlFor="board">Create a new board:</label>
+                <input id="board" type="text" name="board" /> */}
+                <label htmlFor="board" class="pr-2">Create new board:</label>
+                <input id="board" type="text" name="board" class="bg-slate-100 my-1 h-3 border border-slate-200 text-slate-500 text-sm p-2.5" placeholder="New board"/>
             </> 
         );
     } else { // choose existing/select
         return (
-            <>
-                <label htmlFor="board">Choose a board:</label>
-                <select id="board" name="board" onChange={(e) => {setBoardSelect(e.target.value); loadImagesFromServer(e.target.value); helper.hideStatus();}}>
+            <div className='inline my-1'>
+            <label htmlFor="board" class="inline mr-2 mb-2 text-gray-900">Select an option:</label>
+            <select id="board" name="board" onChange={(e) => {setBoardSelect(e.target.value); loadImagesFromServer(e.target.value); helper.hideStatus();}} class="inline bg-slate-100 border border-slate-500 text-slate-500 text-sm">
+                
+                {/* <label htmlFor="board">Choose a board:</label>
+                <select id="board" name="board" onChange={(e) => {setBoardSelect(e.target.value); loadImagesFromServer(e.target.value); helper.hideStatus();}}> */}
                     {storedSelectOptions.map(option => {
                         return(
                             <option key={option} value={option}>{option}</option>
                         )
                     })}
                 </select>
-            </>
+            </div>
         );
     }
 };
@@ -383,6 +406,7 @@ const init = async () => {
 
         // Unmount the changePass component to "clear" the screen
         ReactDOM.unmountComponentAtNode(document.getElementById('changePass'));
+        ReactDOM.unmountComponentAtNode(document.getElementById('uploadForm'));
 
         loadImagesFromServer(selectOptions[0]);
         ReactDOM.render(
