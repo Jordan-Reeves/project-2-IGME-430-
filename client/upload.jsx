@@ -107,7 +107,6 @@ const WhichBoard = (props) => {
             <>
                 <label htmlFor="board">Create a new board:</label>
                 <input id="board" type="text" name="board" />
-                <input type='submit' value='Create board'/>
             </> 
         );
     } else { // choose existing/select

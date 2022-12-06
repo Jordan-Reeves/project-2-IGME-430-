@@ -4,11 +4,14 @@
   <title>Mood Board Maker</title>
   <script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" referrerpolicy="no-referrer">
   <link rel="shortcut icon" href="/assets/img/favicon.png"/>
+  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" type="text/css" href="/assets/style.css"/>
 </head>
 <body>
-  <nav><a href="/login"><img id="logo" src="/assets/img/face.png" alt="face logo"/></a>
+  {{!-- <nav>
+    <a href="/login"><img id="logo" src="/assets/img/face.png" alt="face logo"/></a>
     <div class="navlink" id="boards"><a>Boards</a></div>
     <div class="navlink">
       <input type="checkbox" id="premiumMode" name="premiumMode">
@@ -16,7 +19,35 @@
     </div>
     <div class="navlink"><a href="/logout">Log out</a></div>
     <div class="navlink" id="changePassButton"><a>Change Password</a></div>
-  </nav>
+  </nav> --}}
+  
+<nav class="bg-slate-50  pl-4 w-full">
+  <div class="flex flex-wrap justify-between m-0 w-full">
+    <a href="/login" class="flex items-center ">
+        <i class="fas fa-camera pr-2 text-emerald-400"></i>
+        {{!-- <i class="fas fa-cloud"></i> --}}
+        <span class="self-center text-xl font-semibold whitespace-nowrap">Mood Board</span>
+    </a>
+    <div class="w-full md:block md:w-auto" id="navbar-default">
+      <ul class="flex flex-row text-sm font-medium">
+        <li id="boards">
+          <a class="block py-4 px-4 h-full text-gray-700 bg-slate-100 hover:bg-emerald-100">Boards</a>
+        </li>
+        <li class="block py-4 px-4 text-gray-700 bg-slate-100 hover:bg-emerald-100">
+          <input type="checkbox" id="premiumMode" name="premiumMode">
+          <label for="premiumMode"> Premium Mode</label>
+        </li>
+        <li id="changePassButton">
+          <a class="block py-4 px-4 text-gray-700 bg-slate-100 hover:bg-emerald-100">Change Password</a>
+        </li>
+        <li>
+          <a href="/logout" class="block py-4 px-4 text-gray-700 bg-slate-100 hover:bg-emerald-100">Logout</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
 
 
   <div id="status" class='hidden'>
