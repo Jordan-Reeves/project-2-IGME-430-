@@ -258,7 +258,7 @@ const handleCheckPass = async (e) => {
     const _csrf = e.target.querySelector('#_csrf').value;
 
     if(!pass){
-        helper.sendStatus({message:'Password is empty!'});
+        helper.sendStatus({error:'Password is empty!'});
         return false;
     }
     
@@ -278,7 +278,7 @@ const handleCheckPass = async (e) => {
 // Component for checking if the password matches the stored password
 const CheckPassWindow = (props) => {
     return (
-        <div className='relative w-full h-full'>
+        <div className='relative w-full h-[90%]'>
             <div className='absolute top-1/2 left-1/2 translate-y-[-50%] translate-x-[-50%]'>
                 <h2 className='text-lg font-semibold text-center mb-4'>Confirm your password to continue</h2>
                 <form id="checkPassForm"
@@ -326,7 +326,7 @@ const handleChangePass = async (e) => {
 // Component for changing the stored password to a new one
 const ChangePassWindow = (props) => {
     return (
-        <div className='relative w-full h-full'>
+        <div className='relative w-full h-[90%]'>
             <div className='absolute top-1/2 left-1/2 translate-y-[-50%] translate-x-[-50%]'>
                 <h2 className='text-lg font-semibold text-center mb-4'>Enter your new password!</h2>
                 <form id="signupForm"

@@ -81,7 +81,6 @@ AccountSchema.statics.getBoards = (callback) => {
   AccountModel.find({ }, { boards: 1 }).exec(callback);
 };
 
-
 // Function to add a board to the front of a users array
 AccountSchema.statics.addBoard = (owner, newBoard, callback) => {
   AccountModel.updateOne(
@@ -97,6 +96,9 @@ AccountSchema.statics.addBoard = (owner, newBoard, callback) => {
   ).exec(callback);
 };
 
+AccountModel = mongoose.model('Account', AccountSchema);
+module.exports = AccountModel;
+
 // I realized deleting would be more complicated because
 // I would need to delete all the images with that board value
 // // Function to delete a board from the users array
@@ -108,6 +110,3 @@ AccountSchema.statics.addBoard = (owner, newBoard, callback) => {
 //    }}
 //  ).exec(callback)
 // };
-
-AccountModel = mongoose.model('Account', AccountSchema);
-module.exports = AccountModel;

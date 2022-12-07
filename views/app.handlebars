@@ -7,20 +7,8 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" referrerpolicy="no-referrer">
   <link rel="shortcut icon" href="/assets/img/favicon.png"/>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" type="text/css" href="/assets/style.css"/>
 </head>
 <body>
-  {{!-- <nav>
-    <a href="/login"><img id="logo" src="/assets/img/face.png" alt="face logo"/></a>
-    <div class="navlink" id="boards"><a>Boards</a></div>
-    <div class="navlink">
-      <input type="checkbox" id="premiumMode" name="premiumMode">
-      <label for="premiumMode"> Premium Mode</label>
-    </div>
-    <div class="navlink"><a href="/logout">Log out</a></div>
-    <div class="navlink" id="changePassButton"><a>Change Password</a></div>
-  </nav> --}}
-  
 <nav class="bg-slate-50  pl-4 w-full">
   <div class="flex flex-wrap justify-between m-0 w-full">
     <a href="/login" class="flex items-center ">
@@ -47,11 +35,9 @@
   </div>
 </nav>
 
-
-
   <div id="status" class='hidden'>
-      <h3><span id="statusMessage"></span></h3>
-    </div>
+    <h3 class="m-2 font-semibold"><span id="statusMessage"></span></h3>
+  </div>
 
   <section id="changePass">
   </section>

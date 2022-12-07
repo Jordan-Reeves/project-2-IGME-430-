@@ -7,6 +7,11 @@ const loginPage = (req, res) => {
   res.render('login', { csrfToken: req.csrfToken() });
 };
 
+// Function to send users to the login page
+const notFoundPage = (req, res) => {
+  res.status(404).render('notFound', { csrfToken: req.csrfToken() });
+};
+
 // Function to logout users and send them to the login page
 const logout = (req, res) => {
   req.session.destroy();
@@ -65,10 +70,10 @@ const signup = async (req, res) => {
 // Function to let users update their password
 const changePassword = async (req, res) => {
   // Store the Vars
-  const username = req.session.account.username;
+  const { username } = req.session.account;
   const pass = `${req.body.pass}`;
   const pass2 = `${req.body.pass2}`;
-  
+
   // Chech that all data is present
   if (!username || !pass || !pass2) {
     return res.status(400).json({ error: 'Password must be typed twice!' });
@@ -79,21 +84,21 @@ const changePassword = async (req, res) => {
     return res.status(400).json({ error: 'Passwords do not match!' });
   }
 
-  //TTry to make a hash with the new password and update the Account with it
+  // TTry to make a hash with the new password and update the Account with it
   try {
     const hash = await Account.generateHash(pass);
-    await Account.updateOne({username: username}, {password:hash})
-    return res.json({ message: 'Password successfully changed', changed: true });
+    await Account.updateOne({ username }, { password: hash });
+    return res.json({ message: 'Password successfully changed', changed: true, redirect: '/upload' });
   } catch (err) {
     console.log(err);
-    return res.json({ error: 'Password not changed'});
+    return res.json({ error: 'Password not changed' });
   }
 };
 
 // Function to check users password before allowing them to change it
 const checkPassword = (req, res) => {
   // Store the vars
-  let username = req.session.account.username;
+  const { username } = req.session.account;
   const pass = `${req.body.pass}`;
 
   // Check that something was typed
@@ -108,7 +113,7 @@ const checkPassword = (req, res) => {
     }
 
     req.session.account = Account.toAPI(account);
-    return res.json({ message: 'Password matched!', canChange: true});
+    return res.json({ message: 'Password matched!', canChange: true });
   });
 };
 
@@ -137,6 +142,22 @@ const addBoard = (req, res) => {
   });
 };
 
+// Function to return the users csrf
+const getToken = (req, res) => res.json({ csrfToken: req.csrfToken() });
+
+module.exports = {
+  notFoundPage,
+  loginPage,
+  login,
+  logout,
+  signup,
+  changePassword,
+  checkPassword,
+  getBoards,
+  addBoard,
+  getToken,
+};
+
 // Function to allow users to delete a new board
 // const deleteBoard = (req, res) => {
 //   const _id = req.session.account._id;
@@ -150,18 +171,3 @@ const addBoard = (req, res) => {
 //     return res.json({ userBoards: docs });
 //   });
 // };
-
-// Function to return the users csrf
-const getToken = (req, res) => res.json({ csrfToken: req.csrfToken() });
-
-module.exports = {
-  loginPage,
-  login,
-  logout,
-  signup,
-  changePassword,
-  checkPassword,
-  getBoards,
-  addBoard,
-  getToken,
-};

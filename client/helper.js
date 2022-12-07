@@ -3,9 +3,12 @@ const sendStatus = (message) => {
   // console.log(message);
   let displayText = '';
   for (const property in message) {
-    if(property == 'message' || property == "error"){
-      console.log(`${property}: ${message[property]}`);
-      displayText += `<p>${property}: ${message[property]}</p>`;
+    console.log(`${property}: ${message[property]}`);
+    if(property == 'message'){
+      displayText += `<p>${message[property]}</p>`;
+    }
+    if(property == "error"){
+      displayText += `<p class="text-rose-600">${property}: ${message[property]}</p>`;
     }
   }
   document.getElementById('statusMessage').innerHTML = displayText;
